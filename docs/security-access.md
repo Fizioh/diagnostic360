@@ -37,6 +37,17 @@ Login hardening: request body capped at 4 KiB, passphrase max 256 characters, JW
 
 Set GitHub repository variable `MISSION_API_URL` to the Worker URL for Pages builds.
 
+## Production (2026-10-02)
+
+| Item | Value |
+|------|--------|
+| GitHub Pages | `https://fizioh.github.io/diagnostic360/` |
+| Worker (public API origin) | `https://mission2027-api.batrom.workers.dev` |
+| Cloudflare account | `batrom@laposte.net` (Workers + KV `RATE_LIMIT_KV`) |
+| Rate limiting | KV-backed login failures (8 / 15 min → 429) |
+
+Previous Cloudflare account and KV/Worker resources are obsolete. CI deploy of the Worker still requires `CLOUDFLARE_API_TOKEN` on the new account.
+
 ## Audit note (2026-10-02)
 
 Removed `public/data/mission2027-planning.json` from static deployment. Content was generic mission placeholders but still operational context; it is now served only via `GET /api/planning` after authentication.

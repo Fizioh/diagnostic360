@@ -21,7 +21,7 @@ body {
 
   .cockpit-scene::before {
     content: "";
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: -2;
     background-image: theme("backgroundImage.cockpit-mesh");
@@ -29,7 +29,7 @@ body {
 
   .cockpit-scene::after {
     content: "";
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: -1;
     background-image: theme("backgroundImage.cockpit-grid");

@@ -14,12 +14,12 @@ export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "") || undefined}>
       <Routes>
-        <Route path="/diagnostic" element={<DiagnosticHubPage />} />
-        <Route path="/diagnostic/360/*" element={<DiagnosticFeature />} />
-        <Route path="/diagnostic/light/*" element={<LightDiagnosticFeature />} />
         <Route element={<AppLayout />}>
           <Route index element={<DashboardPage />} />
           <Route path="today" element={<TodayPage />} />
+          <Route path="diagnostic" element={<DiagnosticHubPage />} />
+          <Route path="diagnostic/360/*" element={<DiagnosticFeature />} />
+          <Route path="diagnostic/light/*" element={<LightDiagnosticFeature />} />
           <Route path="readiness" element={<ReadinessPage />} />
           <Route path="remediation" element={<RemediationPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />

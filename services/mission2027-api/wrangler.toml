@@ -7,4 +7,4 @@ ALLOWED_ORIGINS = "https://fizioh.github.io,http://localhost:5173"
 
 [[kv_namespaces]]
 binding = "RATE_LIMIT_KV"
-id = "70b677f38f4d4129ade48770a4656949"
+id = "1f39f24ebb6941568b37e53628baa8ca"

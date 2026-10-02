@@ -17,7 +17,7 @@ export function PipelineFunnel({ stages, arrowLabel, caption }: PipelineFunnelPr
     <div>
       <p className="text-lg tabular-nums tracking-tight text-accent">{arrowLabel}</p>
       {caption && <p className="mt-0.5 line-clamp-2 text-[9px] leading-tight text-muted">{caption}</p>}
-      <Link to="/data" className="mt-1 inline-block text-[10px] text-accent hover:underline">
+      <Link to="/data" className="mt-1.5 inline-block text-[11px] font-medium text-signal hover:underline">
         View pipeline →
       </Link>
     </div>

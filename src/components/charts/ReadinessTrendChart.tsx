@@ -23,7 +23,7 @@ export function ReadinessTrendChart({ points, hasTrend }: ReadinessTrendChartPro
   }
 
   const w = 280;
-  const h = 64;
+  const h = 72;
   const pad = 8;
   const minY = Math.min(...valid.map((p) => p.score));
   const maxY = Math.max(...valid.map((p) => p.score));
@@ -36,18 +36,18 @@ export function ReadinessTrendChart({ points, hasTrend }: ReadinessTrendChartPro
   });
 
   return (
-    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" role="img" aria-label="Readiness trend">
+    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" role="img" aria-label="Readiness trend" className="rounded-md bg-surface/35">
       <polyline
         fill="none"
         stroke="currentColor"
-        className="text-accent"
+        className="text-signal"
         strokeWidth="2"
         points={coords.join(" ")}
       />
       {valid.map((p, i) => {
         const x = pad + (i / (valid.length - 1)) * (w - pad * 2);
         const y = h - pad - ((p.score - minY) / span) * (h - pad * 2);
-        return <circle key={p.at} cx={x} cy={y} r="3" className="fill-accent" />;
+        return <circle key={p.at} cx={x} cy={y} r="3" className="fill-signal" />;
       })}
     </svg>
   );

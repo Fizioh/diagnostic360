@@ -28,7 +28,7 @@ export function ProofProgress({ summary, nextProofTitle }: ProofProgressProps) {
           Next: <span className="text-accent/90">{nextProofTitle}</span>
         </p>
       )}
-      <Link to="/data" className="mt-1 inline-block text-[10px] text-accent hover:underline">
+      <Link to="/data" className="mt-1.5 inline-block text-[11px] font-medium text-signal hover:underline">
         View proofs →
       </Link>
     </div>

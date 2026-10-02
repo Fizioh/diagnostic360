@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { computeAllDomains } from "../../domain/readiness/computeReadiness";
 
@@ -17,8 +18,17 @@ import { DomainReadinessDrillDown } from "./DomainReadinessDrillDown";
 export function ReadinessPage() {
 
   const { workspace, loading } = useWorkspace();
+  const [searchParams] = useSearchParams();
 
   const [selected, setSelected] = useState<ReadinessDomain | null>(null);
+
+  useEffect(() => {
+    const d = searchParams.get("domain");
+    if (!d) return;
+    const domains = computeAllDomains(workspace?.evidence ?? []);
+    const match = domains.find((x) => x.domain === d);
+    if (match) setSelected(match.domain);
+  }, [searchParams, workspace?.evidence]);
 
   const evidence = workspace?.evidence ?? [];
 

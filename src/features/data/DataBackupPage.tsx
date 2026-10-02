@@ -9,6 +9,7 @@ import { useNotionPlanning } from "../../hooks/useNotionPlanning";
 import { useWorkspace } from "../../hooks/useWorkspace";
 import { loadRun, saveRun } from "../../lib/storage";
 import { saveWorkspace } from "../../persistence/workspaceStore";
+import { SystemStatusSection } from "../settings/SystemStatusSection";
 
 export function DataBackupPage() {
   const { workspace, persist } = useWorkspace();
@@ -117,6 +118,8 @@ export function DataBackupPage() {
         </div>
         {message && <p className="mt-3 text-xs text-muted">{message}</p>}
       </section>
+
+      <SystemStatusSection />
     </div>
   );
 }

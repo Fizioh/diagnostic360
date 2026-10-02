@@ -3,6 +3,8 @@ import { ALL_DOMAINS, computeDomainReadiness } from "./computeReadiness";
 
 export type TargetProfileId = "senior-international" | "big-tech-swe" | "ai-systems-engineer";
 
+export const DEFAULT_TARGET_PROFILE_ID: TargetProfileId = "big-tech-swe";
+
 export interface TargetProfileMeta {
   id: TargetProfileId;
   label: string;

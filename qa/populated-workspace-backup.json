@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "exportedAt": "2026-10-02T15:00:00.000Z",
+  "workspace": {
+    "schemaVersion": 1,
+    "updatedAt": "2026-10-02T15:00:00.000Z",
+    "tasks": [],
+    "evidence": [
+      {
+        "id": "ev-rev-qa-coding-coding",
+        "domain": "algorithms",
+        "strength": "strong",
+        "title": "Diagnostic 360 · coding",
+        "description": "QA fixture",
+        "validatedAt": "2026-09-28T12:00:00.000Z",
+        "sourceType": "diagnostic",
+        "confidence": 80,
+        "sourceRunId": "run-qa-fixture",
+        "sourceReviewId": "rev-qa-fixture"
+      },
+      {
+        "id": "ev-rev-qa-react-ts",
+        "domain": "react-typescript",
+        "strength": "medium",
+        "title": "Diagnostic 360 · react-ts",
+        "description": "QA fixture",
+        "validatedAt": "2026-09-28T12:00:00.000Z",
+        "sourceType": "diagnostic",
+        "sourceRunId": "run-qa-fixture",
+        "sourceReviewId": "rev-qa-fixture"
+      }
+    ],
+    "weaknesses": [],
+    "retests": [],
+    "errorLog": [],
+    "appliedReviews": [
+      {
+        "reviewId": "rev-qa-fixture",
+        "runId": "run-qa-fixture",
+        "reviewedAt": "2026-09-28T12:00:00.000Z",
+        "importedAt": "2026-09-28T13:00:00.000Z"
+      }
+    ],
+    "readinessSnapshots": [
+      {
+        "id": "snap-qa-1",
+        "at": "2026-09-20T10:00:00.000Z",
+        "sourceReviewId": "rev-qa-fixture-a",
+        "runId": "run-qa-fixture",
+        "profileScore": 48,
+        "domainScores": { "algorithms": 52 },
+        "evidenceCount": 1,
+        "openWeaknesses": 2,
+        "diagnosticSeconds": 5400
+      },
+      {
+        "id": "snap-qa-2",
+        "at": "2026-09-28T13:00:00.000Z",
+        "sourceReviewId": "rev-qa-fixture",
+        "runId": "run-qa-fixture",
+        "profileScore": 58,
+        "domainScores": { "algorithms": 62, "react-typescript": 55 },
+        "evidenceCount": 2,
+        "openWeaknesses": 1,
+        "diagnosticSeconds": 5400
+      }
+    ]
+  },
+  "diagnosticRun": null
+}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { emptyWorkspace } from "../../persistence/workspaceStore";
 import { applyLightDiagnosticResults } from "./applyResults";
+import { LIGHT_DIAGNOSTIC_FR } from "./i18n/frQuestions";
 import { LIGHT_DIAGNOSTIC_QUESTIONS } from "./questionBank";
 import { buildLightDiagnosticResults } from "./scoring";
 import {
@@ -21,6 +22,15 @@ describe("light diagnostic question bank", () => {
     expect(LIGHT_DIAGNOSTIC_QUESTIONS.length).toBe(40);
     const ids = new Set(LIGHT_DIAGNOSTIC_QUESTIONS.map((q) => q.id));
     expect(ids.size).toBe(40);
+  });
+
+  it("has French copy for every question id", () => {
+    for (const q of LIGHT_DIAGNOSTIC_QUESTIONS) {
+      const fr = LIGHT_DIAGNOSTIC_FR[q.id];
+      expect(fr, q.id).toBeDefined();
+      expect(fr.scenario.length).toBeGreaterThan(10);
+      expect(fr.choices).toHaveLength(4);
+    }
   });
 });
 

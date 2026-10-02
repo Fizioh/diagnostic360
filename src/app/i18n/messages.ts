@@ -35,6 +35,38 @@ export type MessageTree = {
     allClear: string;
     noSignals: string;
   };
+  light: {
+    loading: string;
+    hubBack: string;
+    title: string;
+    subtitle: string;
+    resume: string;
+    restart: string;
+    restartConfirm: string;
+    start: string;
+    difficultyMedium: string;
+    difficultyHard: string;
+    confidence: string;
+    confidenceHint: string;
+    next: string;
+    pause: string;
+    provisionalResults: string;
+    completeTitle: string;
+    overallLine: string;
+    notValidated: string;
+    domainBreakdown: string;
+    strongest: string;
+    weakest: string;
+    calibration: string;
+    calibrationCorrectHigh: string;
+    calibrationCorrectLow: string;
+    calibrationIncorrectHigh: string;
+    calibrationIncorrectLow: string;
+    highConfidenceIncorrect: string;
+    conceptsNeeding: string;
+    recommendedModules: string;
+    openCockpit: string;
+  };
 };
 
 const en: MessageTree = {
@@ -70,6 +102,38 @@ const en: MessageTree = {
     allClear: "All clear",
     noSignals: "No urgent signals right now.",
   },
+  light: {
+    loading: "Loading…",
+    hubBack: "← Diagnostic hub",
+    title: "Light Diagnostic",
+    subtitle: "Provisional baseline · {count} questions",
+    resume: "Resume",
+    restart: "Restart",
+    restartConfirm: "Reset progress and start over?",
+    start: "Start Light Diagnostic",
+    difficultyMedium: "medium",
+    difficultyHard: "hard",
+    confidence: "Confidence",
+    confidenceHint: "1 = guessing · 5 = certain",
+    next: "Next",
+    pause: "Pause",
+    provisionalResults: "Provisional results",
+    completeTitle: "Light Diagnostic complete",
+    overallLine: "Overall provisional baseline:",
+    notValidated: "not validated practical performance.",
+    domainBreakdown: "Domain breakdown",
+    strongest: "Strongest signals",
+    weakest: "Weakest signals",
+    calibration: "Confidence calibration",
+    calibrationCorrectHigh: "Correct · high confidence",
+    calibrationCorrectLow: "Correct · low confidence",
+    calibrationIncorrectHigh: "Incorrect · high confidence",
+    calibrationIncorrectLow: "Incorrect · low confidence",
+    highConfidenceIncorrect: "High-confidence incorrect",
+    conceptsNeeding: "Concepts needing deeper validation",
+    recommendedModules: "Recommended Diagnostic 360 modules",
+    openCockpit: "Open cockpit →",
+  },
 };
 
 const fr: MessageTree = {
@@ -104,6 +168,38 @@ const fr: MessageTree = {
     weeklyPrep: "Préparation hebdo",
     allClear: "RAS",
     noSignals: "Aucun signal urgent pour l'instant.",
+  },
+  light: {
+    loading: "Chargement…",
+    hubBack: "← Hub diagnostic",
+    title: "Light Diagnostic",
+    subtitle: "Baseline provisionnelle · {count} questions",
+    resume: "Reprendre",
+    restart: "Recommencer",
+    restartConfirm: "Réinitialiser la progression et recommencer ?",
+    start: "Démarrer le Light Diagnostic",
+    difficultyMedium: "moyen",
+    difficultyHard: "difficile",
+    confidence: "Confiance",
+    confidenceHint: "1 = au hasard · 5 = certain",
+    next: "Suivant",
+    pause: "Pause",
+    provisionalResults: "Résultats provisionnels",
+    completeTitle: "Light Diagnostic terminé",
+    overallLine: "Baseline provisionnelle globale :",
+    notValidated: "— ce n'est pas une performance pratique validée.",
+    domainBreakdown: "Détail par domaine",
+    strongest: "Signaux les plus forts",
+    weakest: "Signaux les plus faibles",
+    calibration: "Calibration de confiance",
+    calibrationCorrectHigh: "Correct · confiance élevée",
+    calibrationCorrectLow: "Correct · confiance faible",
+    calibrationIncorrectHigh: "Incorrect · confiance élevée",
+    calibrationIncorrectLow: "Incorrect · confiance faible",
+    highConfidenceIncorrect: "Erreurs à haute confiance",
+    conceptsNeeding: "Concepts à valider en profondeur",
+    recommendedModules: "Modules Diagnostic 360 recommandés",
+    openCockpit: "Ouvrir le cockpit →",
   },
 };
 

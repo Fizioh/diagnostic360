@@ -17,6 +17,7 @@ export function RemediationPage() {
 
   const open = workspace.weaknesses.filter((w) => w.status !== "mastered");
   const scheduledRetests = workspace.retests.filter((r) => r.status === "scheduled");
+  const errorLogOpen = (workspace.errorLog ?? []).filter((e) => e.status === "open");
 
   return (
     <div className="space-y-6">
@@ -26,6 +27,29 @@ export function RemediationPage() {
           Weaknesses from diagnostic review → remediate → retest → stronger evidence → readiness.
         </p>
       </div>
+
+      <section className="rounded-lg border border-border bg-panel p-4">
+        <h3 className="font-mono text-[10px] uppercase text-muted">
+          Diagnostic error log ({errorLogOpen.length} open)
+        </h3>
+        {errorLogOpen.length === 0 ? (
+          <p className="mt-2 text-sm text-muted">No structured errors from imported reviews yet.</p>
+        ) : (
+          <ul className="mt-3 space-y-3">
+            {errorLogOpen.map((e) => (
+              <li key={e.id} className="rounded border border-border px-3 py-2 text-sm">
+                <p className="font-mono text-accent">{e.summary}</p>
+                <p className="mt-1 text-xs text-muted">
+                  {e.domain} · {e.errorType}
+                  {e.initialScore != null ? ` · score ${e.initialScore}` : ""}
+                </p>
+                {e.cause && <p className="mt-1 text-xs text-muted">Cause: {e.cause}</p>}
+                {e.remediation && <p className="mt-1 text-xs text-muted">Remediation: {e.remediation}</p>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section className="rounded-lg border border-border bg-panel p-4">
         <h3 className="font-mono text-[10px] uppercase text-muted">Scheduled retests ({scheduledRetests.length})</h3>

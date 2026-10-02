@@ -17,6 +17,7 @@ describe("e2e feedback loop", () => {
     let ws = applyExternalReview(emptyWorkspace(), review);
     expect(ws.evidence.some((e) => e.domain === "django")).toBe(true);
     expect(ws.weaknesses.length).toBe(1);
+    expect(ws.errorLog.length).toBe(1);
     expect(ws.retests.length).toBe(1);
 
     const djangoBefore = computeDomainReadiness("django", ws.evidence);
@@ -27,6 +28,7 @@ describe("e2e feedback loop", () => {
     ws = result.workspace;
 
     expect(ws.weaknesses[0].status).toBe("mastered");
+    expect(ws.errorLog[0].status).toBe("mastered");
     expect(ws.evidence.filter((e) => e.sourceType === "retest")).toHaveLength(1);
 
     const djangoAfter = computeDomainReadiness("django", ws.evidence);

@@ -8,6 +8,14 @@ export type ReviewModuleOutcome =
   | "validated-fail"
   | "pending-human";
 
+export interface ReviewWeaknessEntry {
+  summary: string;
+  errorType?: string;
+  cause?: string;
+  remediation?: string;
+  initialScore?: number | null;
+}
+
 export interface DiagnosticExternalReviewV1 {
   schemaVersion: 1;
   runId: string;
@@ -19,6 +27,7 @@ export interface DiagnosticExternalReviewV1 {
     score?: number | null;
     summary?: string;
     weaknesses?: string[];
+    weaknessEntries?: ReviewWeaknessEntry[];
   }[];
   overallNotes?: string;
 }
@@ -87,12 +96,27 @@ function outcomeToStrength(outcome: ReviewModuleOutcome): EvidenceItem["strength
   return null;
 }
 
+function weaknessLines(mod: DiagnosticExternalReviewV1["modules"][number]): ReviewWeaknessEntry[] {
+  if (mod.weaknessEntries?.length) return mod.weaknessEntries;
+  if (mod.weaknesses?.length) {
+    return mod.weaknesses.map((summary) => ({ summary }));
+  }
+  if (mod.outcome === "validated-fail") {
+    return [{ summary: mod.summary ?? "Gap identified in external review" }];
+  }
+  return [];
+}
+
 export function applyExternalReview(
   workspace: MissionWorkspaceV1,
   review: DiagnosticExternalReviewV1,
 ): MissionWorkspaceV1 {
   const at = new Date().toISOString();
-  let next = { ...workspace, evidence: [...workspace.evidence] };
+  let next = {
+    ...workspace,
+    evidence: [...workspace.evidence],
+    errorLog: [...(workspace.errorLog ?? [])],
+  };
 
   for (const mod of review.modules) {
     const domain = MODULE_DOMAINS[mod.moduleId];
@@ -109,18 +133,31 @@ export function applyExternalReview(
         sourceType: "diagnostic",
       });
     }
-    if (mod.outcome === "validated-fail" || (mod.weaknesses && mod.weaknesses.length > 0)) {
-      const lines = mod.weaknesses?.length ? mod.weaknesses : [mod.summary ?? "Gap identified in external review"];
-      for (const summary of lines) {
-        if (!summary?.trim()) continue;
-        next = openWeaknessWithRetest(next, {
-          id: crypto.randomUUID(),
-          domain,
-          summary: summary.trim(),
-          remediation: mod.summary,
-          createdAt: at,
-        });
-      }
+    const entries = weaknessLines(mod);
+    for (const entry of entries) {
+      if (!entry.summary?.trim()) continue;
+      const weaknessId = crypto.randomUUID();
+      next = openWeaknessWithRetest(next, {
+        id: weaknessId,
+        domain,
+        summary: entry.summary.trim(),
+        cause: entry.cause,
+        remediation: entry.remediation ?? mod.summary,
+        createdAt: at,
+      });
+      next.errorLog.push({
+        id: crypto.randomUUID(),
+        weaknessId,
+        sourceRunId: review.runId,
+        domain,
+        errorType: entry.errorType?.trim() || "diagnostic-gap",
+        summary: entry.summary.trim(),
+        cause: entry.cause,
+        remediation: entry.remediation ?? mod.summary,
+        initialScore: entry.initialScore ?? mod.score ?? null,
+        createdAt: at,
+        status: "open",
+      });
     }
   }
 

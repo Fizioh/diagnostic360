@@ -18,4 +18,25 @@ describe("externalReview", () => {
     expect(next.evidence).toHaveLength(1);
     expect(next.evidence[0].strength).toBe("strong");
   });
+
+  it("creates structured error log entries from weaknessEntries", () => {
+    const review = buildReviewTemplate("run-1");
+    const mod = review.modules.find((m) => m.moduleId === "django-sql")!;
+    mod.outcome = "validated-partial";
+    mod.weaknessEntries = [
+      {
+        summary: "Slow query on large join",
+        errorType: "sql-performance",
+        cause: "Missing index on foreign key",
+        remediation: "Add composite index and explain analyze",
+        initialScore: 42,
+      },
+    ];
+    const next = applyExternalReview(emptyWorkspace(), review);
+    expect(next.errorLog).toHaveLength(1);
+    expect(next.errorLog[0].errorType).toBe("sql-performance");
+    expect(next.errorLog[0].initialScore).toBe(42);
+    expect(next.weaknesses).toHaveLength(1);
+    expect(next.errorLog[0].weaknessId).toBe(next.weaknesses[0].id);
+  });
 });

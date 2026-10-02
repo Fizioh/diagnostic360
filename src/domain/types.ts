@@ -54,6 +54,20 @@ export interface WeaknessItem {
   createdAt: string;
 }
 
+export interface ErrorLogEntry {
+  id: string;
+  weaknessId: string;
+  sourceRunId: string;
+  domain: ReadinessDomain;
+  errorType: string;
+  summary: string;
+  cause?: string;
+  remediation?: string;
+  initialScore: number | null;
+  createdAt: string;
+  status: "open" | "mastered";
+}
+
 export interface RetestItem {
   id: string;
   weaknessId: string;
@@ -78,6 +92,7 @@ export interface MissionWorkspaceV1 {
   evidence: EvidenceItem[];
   weaknesses: WeaknessItem[];
   retests: RetestItem[];
+  errorLog: ErrorLogEntry[];
 }
 
 export type DomainEvent =

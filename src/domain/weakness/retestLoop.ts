@@ -70,6 +70,9 @@ export function passRetest(
   const weaknesses = workspace.weaknesses.map((w) =>
     w.id === weakness.id ? { ...w, status: "mastered" as const } : w,
   );
+  const errorLog = (workspace.errorLog ?? []).map((e) =>
+    e.weaknessId === weakness.id ? { ...e, status: "mastered" as const } : e,
+  );
 
   return {
     workspace: {
@@ -77,6 +80,7 @@ export function passRetest(
       evidence: [...workspace.evidence, evidence],
       retests,
       weaknesses,
+      errorLog,
       updatedAt: at,
     },
     event: { type: "RetestPassed", retestId, at },

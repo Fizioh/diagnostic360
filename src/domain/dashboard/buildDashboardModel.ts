@@ -96,7 +96,19 @@ function pickTodayFocus(
   tasks: PreparationTask[],
   workspace: MissionWorkspaceV1 | null,
   diagnosticComplete: boolean,
+  lightDiagnostic?: { answered: number; total: number } | null,
 ): TodayFocus {
+  if (lightDiagnostic && lightDiagnostic.answered < lightDiagnostic.total) {
+    const remaining = Math.max(5, Math.round((lightDiagnostic.total - lightDiagnostic.answered) * 0.4));
+    return {
+      title: "Continue Light Diagnostic",
+      domainLabel: "Multi-domain",
+      durationLabel: `~${remaining} min remaining`,
+      reason: "Establish provisional baseline across priority domains.",
+      href: "/diagnostic/light/session",
+      ctaLabel: "Continue",
+    };
+  }
   const by = tasksByStatus(tasks);
   const inProgress = by["in-progress"][0];
   if (inProgress) {
@@ -214,6 +226,15 @@ function buildAttention(workspace: MissionWorkspaceV1 | null, domains: ReturnTyp
   }
 
   for (const d of domains) {
+    if (d.trend === "down" && !d.insufficientEvidence && d.score != null) {
+      items.push({
+        id: `trend-down-${d.domain}`,
+        title: `${d.label} · declining`,
+        detail: "Readiness trend down vs prior evidence.",
+        href: `/readiness?domain=${d.domain}`,
+        actionLabel: "Investigate",
+      });
+    }
     if (d.calibration === "overconfident") {
       items.push({
         id: `cal-over-${d.domain}`,
@@ -268,6 +289,7 @@ export function buildDashboardModel(input: {
   snapshot: NotionPlanningSnapshot | null;
   diagnosticRun: DiagnosticRun | null;
   targetProfileId?: TargetProfileId;
+  lightDiagnostic?: { answered: number; total: number } | null;
 }): DashboardModel {
   const targetProfileId = input.targetProfileId ?? DEFAULT_TARGET_PROFILE_ID;
   const evidence = input.workspace?.evidence ?? [];
@@ -285,7 +307,7 @@ export function buildDashboardModel(input: {
     missionWeek: input.snapshot?.preparationTasks.find((t) => t.week)?.week ?? null,
     targetProfileId,
     targetProfileLabel: profile.label,
-    todayFocus: pickTodayFocus(input.tasks, input.workspace, diagnosticComplete),
+    todayFocus: pickTodayFocus(input.tasks, input.workspace, diagnosticComplete, input.lightDiagnostic),
     weekProgress: weekProgress(input.tasks),
     overallReadinessScore: profile.insufficientEvidence ? null : profile.score,
     overallInsufficient: profile.insufficientEvidence,

@@ -47,8 +47,8 @@ describe("cockpitSelectors", () => {
     expect(isProofCompleteStatus("incomplete")).toBe(false);
     expect(isProofCompleteStatus("not done")).toBe(false);
     const next = nextEngineeringProof([
-      { title: "A", status: "incomplete" },
-      { title: "B", status: "todo" },
+      { title: "A", proofType: "oss", status: "incomplete" },
+      { title: "B", proofType: "oss", status: "todo" },
     ]);
     expect(next).toBe("A");
   });

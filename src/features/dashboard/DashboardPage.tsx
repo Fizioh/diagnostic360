@@ -6,7 +6,7 @@ import { DomainReadinessChart } from "../../components/charts/DomainReadinessCha
 import { EvidenceCompositionChart } from "../../components/charts/EvidenceCompositionChart";
 import { PipelineFunnel } from "../../components/charts/PipelineFunnel";
 import { ProofProgress } from "../../components/charts/ProofProgress";
-import { ReadinessGauge } from "../../components/charts/ReadinessGauge";
+import { EngineerReadinessFifaCard } from "../../components/cockpit/EngineerReadinessFifaCard";
 import { ReadinessTrendChart } from "../../components/charts/ReadinessTrendChart";
 import { WeeklyEffortChart } from "../../components/charts/WeeklyEffortChart";
 import { LIGHT_DIAGNOSTIC_QUESTIONS } from "../../domain/lightDiagnostic/questionBank";
@@ -114,11 +114,12 @@ export function DashboardPage() {
           {wsLoading ? (
             <p className="text-xs text-muted">Loading…</p>
           ) : (
-            <ReadinessGauge
-              score={d.overallReadinessScore}
+            <EngineerReadinessFifaCard
+              ovr={d.overallReadinessScore}
               insufficient={d.overallInsufficient}
               profileLabel={d.targetProfileLabel}
               basis={model.readinessBasis}
+              stats={model.fifaRadarStats}
               qualitySubtitle={model.readinessSubtitle}
             />
           )}

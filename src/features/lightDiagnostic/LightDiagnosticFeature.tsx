@@ -6,6 +6,7 @@ import { buildLightDiagnosticResults } from "../../domain/lightDiagnostic/scorin
 import { applyLightDiagnosticResults } from "../../domain/lightDiagnostic/applyResults";
 import { getLocalizedLightQuestions, localizeLightQuestion } from "../../domain/lightDiagnostic/localizeQuestion";
 import { presentLightQuestion } from "../../domain/lightDiagnostic/presentQuestion";
+import { LightDiagnosticCodePanel } from "../../components/lightDiagnostic/LightDiagnosticCodePanel";
 import { MODULES } from "../../data/modulesMeta";
 import { useLightDiagnostic } from "../../hooks/useLightDiagnostic";
 import { useWorkspace } from "../../hooks/useWorkspace";
@@ -140,8 +141,12 @@ function LightSession() {
       <div className="mt-2 h-1 overflow-hidden rounded-full bg-border">
         <div className="h-full bg-neon-cyan/70" style={{ width: `${((progress + 1) / total) * 100}%` }} />
       </div>
-      <p className="mt-8 text-base leading-relaxed text-accent">{question.scenario}</p>
-      <ul className="mt-6 space-y-2">
+      <div className="mt-6">
+        <LightDiagnosticCodePanel example={question.codeExample} />
+      </div>
+      <p className="mt-5 text-sm font-medium text-neon-cyan/90">{t.light.codePromptLabel}</p>
+      <p className="mt-1 text-base leading-relaxed text-accent">{question.scenario}</p>
+      <ul className="mt-5 space-y-2">
         {question.choices.map((c, i) => (
           <li key={c}>
             <button

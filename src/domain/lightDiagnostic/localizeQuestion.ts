@@ -7,7 +7,11 @@ export function localizeLightQuestion(question: LightDiagnosticQuestion, locale:
   if (locale === "en") return question;
   const fr = LIGHT_DIAGNOSTIC_FR[question.id];
   if (!fr) return question;
-  return { ...question, ...fr };
+  return {
+    ...question,
+    ...fr,
+    codeExample: fr.codeExample ?? question.codeExample,
+  };
 }
 
 export function getLocalizedLightQuestions(locale: LightLocale): LightDiagnosticQuestion[] {

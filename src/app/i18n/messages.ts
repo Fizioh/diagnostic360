@@ -40,6 +40,7 @@ export type MessageTree = {
     hubBack: string;
     title: string;
     subtitle: string;
+    codePromptLabel: string;
     resume: string;
     restart: string;
     restartConfirm: string;
@@ -66,6 +67,15 @@ export type MessageTree = {
     conceptsNeeding: string;
     recommendedModules: string;
     openCockpit: string;
+  };
+  fifaCard: {
+    ovr: string;
+    role: string;
+    provisional: string;
+    validated: string;
+    unrated: string;
+    baselineTitle: string;
+    baselineHint: string;
   };
 };
 
@@ -106,7 +116,8 @@ const en: MessageTree = {
     loading: "Loading…",
     hubBack: "← Diagnostic hub",
     title: "Light Diagnostic",
-    subtitle: "Provisional baseline · {count} questions",
+    subtitle: "Provisional baseline · {count} code challenges",
+    codePromptLabel: "What is the best next step?",
     resume: "Resume",
     restart: "Restart",
     restartConfirm: "Reset progress and start over?",
@@ -133,6 +144,15 @@ const en: MessageTree = {
     conceptsNeeding: "Concepts needing deeper validation",
     recommendedModules: "Recommended Diagnostic 360 modules",
     openCockpit: "Open cockpit →",
+  },
+  fifaCard: {
+    ovr: "OVR",
+    role: "Role",
+    provisional: "Provisional",
+    validated: "Validated",
+    unrated: "Unrated",
+    baselineTitle: "Baseline required",
+    baselineHint: "Complete the Light Diagnostic to unlock your engineer card.",
   },
 };
 
@@ -173,7 +193,8 @@ const fr: MessageTree = {
     loading: "Chargement…",
     hubBack: "← Hub diagnostic",
     title: "Light Diagnostic",
-    subtitle: "Baseline provisionnelle · {count} questions",
+    subtitle: "Baseline provisionnelle · {count} défis code",
+    codePromptLabel: "Quelle est la meilleure prochaine action ?",
     resume: "Reprendre",
     restart: "Recommencer",
     restartConfirm: "Réinitialiser la progression et recommencer ?",
@@ -200,6 +221,15 @@ const fr: MessageTree = {
     conceptsNeeding: "Concepts à valider en profondeur",
     recommendedModules: "Modules Diagnostic 360 recommandés",
     openCockpit: "Ouvrir le cockpit →",
+  },
+  fifaCard: {
+    ovr: "OVR",
+    role: "Rôle",
+    provisional: "Provisionnel",
+    validated: "Validé",
+    unrated: "Non noté",
+    baselineTitle: "Baseline requise",
+    baselineHint: "Passe le Light Diagnostic pour débloquer ta carte ingénieur.",
   },
 };
 

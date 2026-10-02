@@ -2,27 +2,26 @@ import { mcq } from "./helpers";
 
 export const gisQuestions = [
   mcq(
-    "ld-gis-01",
-    "gis",
-    "GIS",
-    "medium",
-    "Map tile server latency spikes globally. Origin in EU; users in APAC. First CDN/architecture step?",
-    [
-      "Cache versioned tiles at the edge CDN with z/x/y keys and long immutable TTL per tileset release",
-      "Render each pan zoom level synchronously on origin for every user so tiles are always freshly generated",
-      "Store the active tile pyramid in browser sessionStorage only and skip network fetches after first load",
-      "Disable zoom interactions client-side so users request fewer distinct tiles during map navigation",
-    ],
-    0,
-    "Versioned static tiles are CDN-friendly.",
-    ["tiles", "CDN", "latency"],
-  ),
-  mcq(
     "ld-gis-02",
     "gis",
     "GIS",
     "hard",
-    "PostGIS query finds points within 5km of a moving vehicle updating every second. Need sub-second reads at scale.",
+    {
+      language: "sql",
+      filename: "nearby_drivers.sql",
+      lines: [
+        "SELECT driver_id",
+        "FROM drivers",
+        "WHERE ST_DWithin(",
+        "  geom::geography,",
+        "  ST_SetSRID(ST_MakePoint($lon, $lat), 4326)::geography,",
+        "  5000",
+        ");",
+        "-- runs every second per vehicle; table has 2M rows, no spatial index",
+      ],
+      highlightLines: [3, 4, 5, 6, 9],
+    },
+    "This query must stay sub-second at scale — what database change helps most?",
     [
       "Use ST_DWithin on geography with a GiST index, simplify geometries, and partition hot spatial regions",
       "Scan the full points table each second and filter distances in SQL without spatial indexes on geometry",
@@ -38,7 +37,21 @@ export const gisQuestions = [
     "gis",
     "GIS",
     "medium",
-    "Client sends GeoJSON with invalid self-intersecting polygons for upload. Server validation approach?",
+    {
+      language: "python",
+      filename: "upload_geom.py",
+      lines: [
+        "def save_polygon(geojson: dict):",
+        "    wkt = shape(geojson).wkt",
+        "    with connection.cursor() as cur:",
+        "        cur.execute(",
+        "            'INSERT INTO zones (geom) VALUES (ST_GeomFromText(%s, 4326))',",
+        "            [wkt],",
+        "        )",
+      ],
+      highlightLines: [2, 4, 5, 6],
+    },
+    "Self-intersecting GeoJSON polygons break downstream spatial ops — server-side approach?",
     [
       "Accept all geometries and rely on the frontend map library to repair topology before users submit",
       "Validate topology with ST_IsValid, reject or repair under explicit policy, and log invalid submissions",

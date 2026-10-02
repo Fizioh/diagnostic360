@@ -2,11 +2,19 @@ import type { ReadinessDomain } from "../types";
 
 export type LightDiagnosticDifficulty = "medium" | "hard";
 
+export interface LightDiagnosticCodeExample {
+  language: string;
+  filename: string;
+  lines: string[];
+  highlightLines?: number[];
+}
+
 export interface LightDiagnosticQuestion {
   id: string;
   readinessDomain: ReadinessDomain;
   domainLabel: string;
   difficulty: LightDiagnosticDifficulty;
+  codeExample: LightDiagnosticCodeExample;
   scenario: string;
   choices: [string, string, string, string];
   correctIndex: 0 | 1 | 2 | 3;

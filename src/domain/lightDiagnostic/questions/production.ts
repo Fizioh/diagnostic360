@@ -2,27 +2,24 @@ import { mcq } from "./helpers";
 
 export const productionQuestions = [
   mcq(
-    "ld-prod-01",
-    "production-devops",
-    "Production / Debugging",
-    "medium",
-    "Deploy succeeds but error rate jumps; last change enabled new feature flag default ON. Fastest safe mitigation?",
-    [
-      "Turn the flag off in the config service and confirm SLO recovery before considering a full deploy rollback",
-      "Scale API pods to zero until the error rate drops, then redeploy the previous image without flag changes",
-      "Wait for off-peak traffic before investigating so incident noise does not affect daytime user sessions",
-      "Truncate related production tables and replay migrations so the new code path starts from a clean slate",
-    ],
-    0,
-    "Flag kill switch is fastest when architecture supports it.",
-    ["feature flags", "incident response", "rollback"],
-  ),
-  mcq(
     "ld-prod-02",
     "debugging",
     "Production / Debugging",
     "medium",
-    "CPU high on API nodes; profiles show regex catastrophic backtracking on user input. Fix priority?",
+    {
+      language: "javascript",
+      filename: "validateEmail.js",
+      lines: [
+        "const EMAIL_RE =",
+        "  /^([a-zA-Z0-9_\\.\\-\\+])+@([a-zA-Z0-9_\\-\\.])+\\.([a-zA-Z]{2,4})+$/;",
+        "",
+        "export function validateEmail(input) {",
+        "  return EMAIL_RE.test(input);",
+        "}",
+      ],
+      highlightLines: [1, 2, 5],
+    },
+    "CPU spikes on user input and profiles show catastrophic regex backtracking — priority fix?",
     [
       "Cap input size, use a safe regex or RE2-style engine, and add a regression test with pathological input",
       "Add CPU capacity to all API nodes so catastrophic backtracking completes before requests time out",
@@ -38,7 +35,23 @@ export const productionQuestions = [
     "production-devops",
     "Production / Debugging",
     "hard",
-    "Secret leaked in client bundle found by scanner. Correct sequence?",
+    {
+      language: "typescript",
+      filename: "apiClient.ts",
+      lines: [
+        "const API_URL = import.meta.env.VITE_API_URL;",
+        "const STRIPE_SECRET = import.meta.env.VITE_STRIPE_SECRET_KEY;",
+        "",
+        "export async function charge(amount: number) {",
+        "  return fetch(`${API_URL}/charge`, {",
+        "    headers: { Authorization: `Bearer ${STRIPE_SECRET}` },",
+        "    body: JSON.stringify({ amount }),",
+        "  });",
+        "}",
+      ],
+      highlightLines: [2, 6, 7],
+    },
+    "A scanner finds the Stripe secret in the client bundle — correct incident sequence?",
     [
       "Rotate the secret, remove it from client builds, audit access logs, and purge git history if needed",
       "Leave the secret in place because HTTPS encrypts the bundle in transit so exposure risk stays low",
@@ -48,21 +61,5 @@ export const productionQuestions = [
     0,
     "Rotation + removal from client + audit is standard incident hygiene.",
     ["secrets", "supply chain", "incident response"],
-  ),
-  mcq(
-    "ld-prod-04",
-    "debugging",
-    "Production / Debugging",
-    "hard",
-    "Intermittent 500s correlate with GC pauses on one node only. Next diagnostic step?",
-    [
-      "Compare heap and GC metrics and container memory limits on that node against healthy peers for leaks",
-      "Restart pods on a fixed daily schedule without collecting metrics so pauses disappear temporarily",
-      "Disable the garbage collector JVM flag on the affected node so allocation never triggers long pauses",
-      "Enable global DEBUG logging permanently so GC pauses correlate with verbose request traces in logs",
-    ],
-    0,
-    "Node-specific GC suggests memory pressure or leak isolated to instance.",
-    ["GC", "observability", "noisy neighbor"],
   ),
 ];

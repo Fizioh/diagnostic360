@@ -1,4 +1,4 @@
-import type { LightDiagnosticQuestion } from "../types";
+import type { LightDiagnosticCodeExample, LightDiagnosticQuestion } from "../types";
 import type { ReadinessDomain } from "../../types";
 
 export function mcq(
@@ -6,6 +6,7 @@ export function mcq(
   readinessDomain: ReadinessDomain,
   domainLabel: string,
   difficulty: "medium" | "hard",
+  codeExample: LightDiagnosticCodeExample,
   scenario: string,
   choices: [string, string, string, string],
   correctIndex: 0 | 1 | 2 | 3,
@@ -17,6 +18,7 @@ export function mcq(
     readinessDomain,
     domainLabel,
     difficulty,
+    codeExample,
     scenario,
     choices,
     correctIndex,

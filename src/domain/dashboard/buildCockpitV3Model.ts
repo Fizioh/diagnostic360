@@ -5,6 +5,8 @@ import { computeMissionAnalytics, type MissionAnalyticsModel } from "../analytic
 import { computeReadinessBasis, type ReadinessBasis } from "../readiness/readinessBasis";
 import type { MissionWorkspaceV1, PreparationTask, ReadinessDomain } from "../types";
 import { buildDashboardModel, type DashboardModel } from "./buildDashboardModel";
+import type { FifaRadarStat } from "./fifaCardStats";
+import { selectFifaRadarStats } from "./fifaCardStats";
 import {
   isProofCompleteStatus,
   nextEngineeringProof,
@@ -35,6 +37,7 @@ export interface CockpitV3Model {
   pipelineArrow: string | null;
   pipelineCaption: string | null;
   nextProofTitle: string | null;
+  fifaRadarStats: FifaRadarStat[];
 }
 
 function proofsSummary(snapshot: NotionPlanningSnapshot | null): ProofsSummary {
@@ -70,6 +73,7 @@ export function buildCockpitV3Model(input: {
     pipelineArrow: pipelineArrowLabel(stages),
     pipelineCaption: pipelineStageCaptions(stages),
     nextProofTitle: nextEngineeringProof(dashboard.engineeringProofs),
+    fifaRadarStats: selectFifaRadarStats(dashboard.domainBars),
   };
 }
 

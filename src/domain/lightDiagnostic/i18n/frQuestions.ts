@@ -1,15 +1,17 @@
 import type { LightDiagnosticQuestion } from "../types";
 
-type FrQuestionPack = Pick<LightDiagnosticQuestion, "domainLabel" | "scenario" | "choices" | "explanation">;
+type FrQuestionPack = Pick<LightDiagnosticQuestion, "domainLabel" | "scenario" | "choices" | "explanation"> & {
+  codeExample?: LightDiagnosticQuestion["codeExample"];
+};
 
 export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-react-01": {
     domainLabel: "React / TypeScript",
     scenario:
-      "Une liste se re-rend à chaque frappe dans une zone de recherche car l'état parent est mis à jour. Les enfants sont des composants purs coûteux mais se re-rendent quand même. Quelle est la correction la plus probable ?",
+      "Pourquoi les MemoRow mémoïsés se re-rendent à chaque frappe dans la recherche ?",
     choices: [
       "Colocaliser l'état de recherche dans chaque ligne pour que l'arbre parent évite les mises à jour locales",
-      "Stabiliser les props enfants avec memo plus useCallback et useMemo pour handlers et données dérivées passées",
+      "Stabiliser les props avec memo plus useCallback et useMemo pour handlers et valeurs dérivées passées",
       "Throttler le setState parent tout en passant des handlers inline et objets neufs aux enfants mémoïsés",
       "Envelopper la liste dans des providers de contexte supplémentaires pour limiter l'invalidation au sous-arbre",
     ],
@@ -19,12 +21,12 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-react-02": {
     domainLabel: "React / TypeScript",
     scenario:
-      "StrictMode invoque les effets deux fois en développement. Un effet fetch au montage crée des abonnements dupliqués en prod après un mauvais merge. Meilleure prévention ?",
+      "Après StrictMode en dev, la prod montre des abonnements websocket dupliqués — qu'est-ce qui manque ?",
     choices: [
       "Garde-fou module pour que la seconde invocation StrictMode sorte avant de s'abonner en développement",
       "Cleanup AbortController pour annuler le travail en cours et rendre l'abonnement idempotent au remontage",
-      "Déplacer le fetch vers useLayoutEffect pour qu'il s'exécute une fois avant peinture sans double appel",
-      "Stocker l'abonnement dans une ref et ignorer un re-fetch si ref.current est déjà défini après montage",
+      "Déplacer l'abonnement vers useLayoutEffect pour qu'il s'exécute une fois avant peinture sans double appel",
+      "Stocker l'abonnement dans une ref et ignorer une reconnexion si ref.current est déjà défini après montage",
     ],
     explanation:
       "Le bon pattern est des effets annulables avec cleanup ; StrictMode expose l'absence de cleanup, pas la cause racine.",
@@ -32,7 +34,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-react-03": {
     domainLabel: "React / TypeScript",
     scenario:
-      "TypeScript affine une union discriminée dans un switch, mais un handler partagé élargit le type à l'union. Quelle approche de typage préserve l'exhaustivité ?",
+      "TypeScript signale que action.item peut être undefined dans handle — comment préserver l'exhaustivité ?",
     choices: [
       "Un handler typé sur l'union complète avec des typeof runtime au lieu de cas compile-time distincts",
       "Handler générique par cas ou fonctions séparées par variante pour conserver l'affinement à l'appel",
@@ -41,36 +43,10 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
     ],
     explanation: "Des handlers par variante ou des génériques préservent l'affinement ; les casts effacent la sécurité.",
   },
-  "ld-react-04": {
-    domainLabel: "React / TypeScript",
-    scenario:
-      "Fonctionnalités concurrentes : une transition met à jour un grand tableau pendant la saisie d'un filtre. Les utilisateurs voient brièvement des résultats de filtre obsolètes. Compromis attendu et atténuation ?",
-    choices: [
-      "Mettre à jour tableau et filtre en synchrone dans un seul batch setState pour un snapshot cohérent",
-      "Marquer la saisie filtre urgente et différer le tableau lourd avec startTransition et une valeur différée",
-      "Mémoïser tout le tableau avec useMemo sur le texte filtre pour que la frappe ne reconcile jamais",
-      "Filtrer dans un worker et postMessage à chaque frappe sans prioriser le chemin de mise à jour saisie",
-    ],
-    explanation:
-      "Saisie utilisateur urgente vs rendu coûteux différé : c'est le pattern concurrent prévu.",
-  },
-  "ld-react-05": {
-    domainLabel: "React / TypeScript",
-    scenario:
-      "Une librairie de formulaire stocke l'état des champs dans des refs pour éviter les re-renders, mais les messages d'erreur ne se mettent jamais à jour. Quel est le problème sous-jacent ?",
-    choices: [
-      "Lire ref.current au render et l'alimenter dans useMemo pour recalculer l'UI quand les refs mutent",
-      "L'UI dérivée des refs doit passer par state ou abonnement store pour que les mutations planifient un render",
-      "Appeler flushSync après chaque écriture ref pour afficher les erreurs sans remonter les valeurs en state",
-      "Persister les erreurs en sessionStorage et poller périodiquement au lieu de lier les erreurs à React",
-    ],
-    explanation:
-      "Les refs mutent sans planifier de rendu ; les patterns validés exposent un état de champ observable.",
-  },
   "ld-django-01": {
     domainLabel: "Python / Django",
     scenario:
-      "Une requête ORM dans une boucle provoque 200 requêtes sur une page liste. Le queryset utilise déjà select_related pour la FK. Quelle est la prochaine correction probable ?",
+      "Cette vue liste déclenche des centaines de requêtes SQL — quelle correction ORM après select_related ?",
     choices: [
       "Activer le cache queryset sur la vue pour que la boucle réutilise le cache ORM en mémoire du processus",
       "Ajouter prefetch_related pour les collections M2M ou FK inversées touchées à chaque itération de boucle",
@@ -82,7 +58,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-django-02": {
     domainLabel: "Python / Django",
     scenario:
-      "Deux tâches Celery mettent à jour la même ligne en read-modify-write sans verrou. Des mises à jour perdues sporadiques apparaissent sous charge. Approche la plus sûre côté Django ?",
+      "Des tâches Celery concurrentes perdent des mises à jour stock — quelle correction Django la plus sûre ?",
     choices: [
       "Utiliser select_for_update dans transaction.atomic autour de la section critique read-modify-write",
       "Exécuter chaque tâche en autocommit pour committer plus vite et réduire le chevauchement sur la ligne",
@@ -94,7 +70,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-django-03": {
     domainLabel: "Python / Django",
     scenario:
-      "Une vue renvoie 403 pour POST mais GET fonctionne. Middleware CSRF activé, cookie de session présent. Client mobile utilise une API avec en-tête JWT. Cause la plus plausible ?",
+      "GET réussit mais POST authentifié par session renvoie 403 avec le middleware CSRF — pourquoi ?",
     choices: [
       "POST session attend CSRF ; le client doit envoyer un token CSRF, une route exemptée ou une auth session alignée",
       "L'app mobile doit envoyer le cookie session sur POST comme sur GET pour que l'authentification corresponde",
@@ -104,36 +80,10 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
     explanation:
       "Un POST avec session attend CSRF ; les chemins d'auth par token diffèrent des formulaires navigateur.",
   },
-  "ld-django-04": {
-    domainLabel: "Python / Django",
-    scenario:
-      "Une migration ajoute une colonne non nullable à une table de 50 M lignes. La fenêtre de déploiement est courte. Séquence à plus faible risque ?",
-    choices: [
-      "Ajouter une colonne nullable, backfill par lots, puis imposer NOT NULL dans une migration ultérieure",
-      "Ajouter la colonne non-null avec default serveur en une migration en pleine charge pour finir plus vite",
-      "Recréer la table vide avec le nouveau schéma et copier les lignes en une fenêtre de maintenance unique",
-      "Migration RunPython longue qui verrouille la table jusqu'à mise à jour de chaque ligne en une transaction",
-    ],
-    explanation:
-      "Expand-backfill-contract évite les verrous longs et les réécritures de table lorsque c'est possible.",
-  },
-  "ld-django-05": {
-    domainLabel: "Python / Django",
-    scenario:
-      "Les signals se déclenchent à chaque save et lancent des appels HTTP externes, ralentissant les écritures. Refactorisation préférée ?",
-    choices: [
-      "Désenregistrer tous les receivers au démarrage et appeler les mêmes HTTP depuis save() du modèle",
-      "Déplacer les effets vers une couche service explicite ou une tâche async on_commit après la transaction",
-      "Garder les signals mais exécuter les requêtes sync dans pre_save pour rollback avant persistance",
-      "Appeler l'API externe depuis le middleware à chaque réponse pour garder les writes rapides globalement",
-    ],
-    explanation:
-      "Des services domaine explicites ou des tâches on_commit rendent les effets de bord visibles et testables.",
-  },
   "ld-sql-01": {
     domainLabel: "SQL / PostgreSQL",
     scenario:
-      "EXPLAIN montre un seq scan sur une colonne filtrée avec 2 % de sélectivité ; l'index existe mais le planificateur l'ignore. Statistiques obsolètes après un chargement massif. Première action ?",
+      "Le planificateur choisit un seq scan malgré un index utilisable après un chargement massif — première action ?",
     choices: [
       "Reconstruire l'index en concurrent pour que le planificateur le considère frais sans toucher aux stats table",
       "Exécuter ANALYZE sur la table et revoir si les estimations de coût reflètent la distribution actuelle",
@@ -146,7 +96,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-sql-02": {
     domainLabel: "SQL / PostgreSQL",
     scenario:
-      "Une transaction Serializable signale un échec de sérialisation sous réservations concurrentes. Règle métier : pas de double réservation sur le même créneau. Meilleure gestion ?",
+      "Des réservations concurrentes sur le même créneau échouent en sérialisation — meilleure gestion ?",
     choices: [
       "Réessayer la transaction avec backoff borné en cas d'échec de sérialisation et garder des transactions courtes",
       "Baisser l'isolation en read committed et s'appuyer sur des checks applicatifs sans détection DB",
@@ -156,47 +106,10 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
     explanation:
       "Serializable + retry est valide ; envisager aussi des contraintes d'exclusion explicites et des transactions plus courtes.",
   },
-  "ld-sql-03": {
-    domainLabel: "SQL / PostgreSQL",
-    scenario:
-      "Une requête de pagination utilise OFFSET 500000 et devient lente. La pagination par curseur est possible sur created_at,id. Pourquoi le keyset est-il meilleur ici ?",
-    choices: [
-      "OFFSET lit quand même chaque ligne ignorée mais évite le tri si la table a une clé primaire sur id seul",
-      "Le keyset cherche depuis le dernier tuple vu via l'index au lieu de scanner et jeter les lignes offset",
-      "Le keyset force un seq scan car la colonne curseur ne peut pas utiliser un index composite efficacement",
-      "OFFSET est lent seulement si autovacuum est en retard ; keyset corrige les stats plutôt que le coût scan",
-    ],
-    explanation:
-      "Un grand OFFSET force le scan des lignes jetées ; le keyset utilise une recherche indexée.",
-  },
-  "ld-sql-04": {
-    domainLabel: "SQL / PostgreSQL",
-    scenario:
-      "Une migration longue détient AccessExclusiveLock ; les timeouts applicatifs explosent. Atténuation opérationnelle pendant le déploiement ?",
-    choices: [
-      "Définir lock_timeout et statement_timeout et scinder la migration en phases courtes avec rollback sûr",
-      "Désactiver synchronous_commit cluster-wide en permanence pour libérer plus vite les verrous DDL",
-      "Lancer la migration depuis une session ad hoc sans timeouts pour qu'elle se termine toujours en un passage",
-      "Couper toutes les connexions applicatives à chaque déploiement pour que les migrations n'attendent jamais",
-    ],
-    explanation: "Des migrations par phases et des lock timeouts limitent le rayon d'impact.",
-  },
-  "ld-algo-01": {
-    domainLabel: "Algorithmes",
-    scenario:
-      "Top-K éléments fréquents en flux depuis un firehose avec mémoire bornée. Quelle approche convient ?",
-    choices: [
-      "Spiller tout le flux sur disque chaque fenêtre et trier entièrement pour extraire exactement le top K",
-      "Heavy hitters approximatifs type count-min sketch ou space-saving avec bornes d'erreur explicites",
-      "Hash map de chaque clé distincte depuis le démarrage et purge seulement quand la mémoire est saturée",
-      "Tableau trié de toutes les clés vues et recherche dichotomique à chaque événement entrant pour le rang",
-    ],
-    explanation: "L'approximation échange l'exactitude contre une mémoire bornée à l'échelle.",
-  },
   "ld-algo-02": {
     domainLabel: "Algorithmes",
     scenario:
-      "Dijkstra échoue sur des graphes avec arêtes négatives. Vous avez besoin des plus courts chemins avec poids négatifs possibles mais sans cycles négatifs. Correction standard ?",
+      "Cette routine de plus court chemin est fausse avec des poids négatifs — correction standard ?",
     choices: [
       "Exécuter Bellman-Ford ou SPFA avec détection de cycle négatif au lieu de Dijkstra sur le même graphe",
       "Lancer Dijkstra deux fois depuis des sources différentes et combiner les distances pour absorber le négatif",
@@ -208,7 +121,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-algo-03": {
     domainLabel: "Algorithmes",
     scenario:
-      "Fusionner k fichiers de logs triés, chacun avec des millions de lignes, en minimisant la mémoire. Meilleur pattern ?",
+      "Quelle propriété rend ce pattern adapté à fusionner k gros fichiers de logs triés avec peu de mémoire ?",
     choices: [
       "Charger chaque fichier en mémoire, concaténer et trier une fois toutes les lignes en RAM",
       "Fusion k-voies avec min-heap contenant la tête courante de chaque flux de fichier ouvert",
@@ -217,35 +130,10 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
     ],
     explanation: "La fusion par heap est O(total log k) en temps avec O(k) mémoire.",
   },
-  "ld-algo-04": {
-    domainLabel: "Algorithmes",
-    scenario:
-      "Cache avec éviction LRU et TTL par clé. Quel design évite les scans O(n) à l'expiration ?",
-    choices: [
-      "Expiration paresseuse à l'accès plus nettoyage périodique par buckets ou timing wheel pour TTL dus",
-      "Scanner l'ensemble des clés à chaque lecture pour supprimer les expirées avant hit ou miss",
-      "Désactiver TTL par clé et vider tout le cache sur un intervalle global unique pour simplifier",
-      "Stocker les échéances dans une map annexe et parcourir toutes les entrées à chaque écriture synchrone",
-    ],
-    explanation: "Expiration paresseuse + buckets amortit le coût du nettoyage.",
-  },
-  "ld-sd-01": {
-    domainLabel: "Conception système",
-    scenario:
-      "Catalogue produit très lu ; les écritures sont rares. La latence P99 des lectures pic quand le marketing lance une vente flash (lectures seulement). Premier levier de montée en charge ?",
-    choices: [
-      "Réplicas lecture et cache des clés catalogue chaudes avec invalidation explicite à chaque changement produit",
-      "Sharder d'abord le chemin d'écriture pour que chaque partition serve les lectures localement sans cache partagé",
-      "Servir tout le catalogue depuis localStorage navigateur et éviter les lectures serveur pendant la vente",
-      "Limiter le trafic marketing au CDN edge seulement en gardant les lectures origine non mises en cache",
-    ],
-    explanation:
-      "Le chemin lecture scale avec réplicas/cache ; le trafic flash amplifie les lectures.",
-  },
   "ld-sd-02": {
     domainLabel: "Conception système",
     scenario:
-      "Un webhook de paiement idempotent peut arriver deux fois. Comment garantir un effet métier exactly-once ?",
+      "Des livraisons webhook dupliquées peuvent créditer deux fois — comment garantir un effet exactly-once ?",
     choices: [
       "Renvoyer HTTP 200 sur doublon sans rien enregistrer pour que le provider arrête vite les retries",
       "Stocker la clé d'idempotence avec le résultat traité en stockage durable dans la même transaction",
@@ -257,7 +145,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-sd-03": {
     domainLabel: "Conception système",
     scenario:
-      "Un service d'upload accepte des fichiers de 5 Go. Les serveurs API manquent de mémoire. Changement d'architecture ?",
+      "Les pods API OOM sur des uploads 5 Go — quel changement d'architecture corrige ce handler ?",
     choices: [
       "Streamer vers object storage via upload multipart signé pendant que l'API orchestre les parts seulement",
       "Scaler verticalement la RAM des pods API pour bufferiser un objet 5 Go entier pendant la requête",
@@ -267,23 +155,10 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
     explanation:
       "Upload multipart direct vers le stockage évite de charger le blob en mémoire applicative.",
   },
-  "ld-sd-04": {
-    domainLabel: "Conception système",
-    scenario:
-      "Des utilisateurs mondiaux ont besoin de lectures à faible latence ; les écritures doivent rester fortement cohérentes pour les soldes financiers. Pattern réaliste ?",
-    choices: [
-      "Primary d'écriture unique avec réplicas lecture régionaux et staleness bornée seulement hors soldes",
-      "Réplicas actifs-actifs inscriptibles partout sans coordination inter-régions sur les mises à jour soldes",
-      "Fusionner côté client en prenant le max des soldes rapportés par deux endpoints régionaux aléatoires",
-      "Cohérence éventuelle sur les lignes solde et rapprochement des écarts dans un batch nocturne seulement",
-    ],
-    explanation:
-      "La cohérence forte pour l'argent implique en général un chemin writer unique ; staleness sélective ailleurs.",
-  },
   "ld-sd-05": {
     domainLabel: "Conception système",
     scenario:
-      "Les feature flags doivent se mettre à jour en quelques secondes dans le monde entier sans redéploiement. Design minimal viable ?",
+      "Les flags doivent basculer mondialement en quelques secondes sans redéploiement — design minimal ?",
     choices: [
       "Rebuilder et redéployer le frontend toutes les heures pour propager les defaults de flags prévisiblement",
       "Service de config versionné avec poll ou push et TTL de cache client court pour les payloads de flags",
@@ -296,7 +171,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-dist-01": {
     domainLabel: "Systèmes distribués",
     scenario:
-      "Le microservice A appelle B ; B est lent ; les pools de threads s'épuisent dans A. Amélioration immédiate de résilience ?",
+      "Les pools de threads du service A s'épuisent quand B ralentit — quelle stratégie de config en premier ?",
     choices: [
       "Timeouts client, bulkheads et circuit breaker avec retries bornés ou chemin de repli défini",
       "Augmenter la taille max du pool threads sans limite pour que les appels lents file d'attente au lieu d'échouer",
@@ -309,7 +184,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-dist-02": {
     domainLabel: "Systèmes distribués",
     scenario:
-      "Le lag du consumer Kafka augmente ; le traitement est idempotent mais l'ordre compte par clé de partition. Monter en charge les consumers ?",
+      "Le lag consumer grandit mais l'ordre par orderId doit être préservé — comment monter en charge sans risque ?",
     choices: [
       "Augmenter partitions du topic et membres du consumer group jusqu'au nombre de partitions en gardant le routage clé",
       "Lancer un second consumer group sur le même topic sans coordination pour doubler le débit par clé",
@@ -319,48 +194,10 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
     explanation:
       "Le parallélisme est borné par les partitions ; la clé préserve l'ordre par entité.",
   },
-  "ld-dist-03": {
-    domainLabel: "Systèmes distribués",
-    scenario:
-      "Split-brain dans un service élu leader lors d'une partition réseau. Accent sur la prévention ?",
-    choices: [
-      "Exiger quorum majorité pour le leadership et fencing tokens avant que les writers mutent l'état partagé",
-      "Autoriser deux leaders actifs pendant partition si un load balancer répartit le trafic entre eux",
-      "S'appuyer sur horloges murales synchronisées entre nœuds pour décider quel leader est valide après guérison",
-      "Désactiver temporairement les timeouts heartbeat pour que les leaders élus ne abdiquent pas lors de blips réseau",
-    ],
-    explanation: "Quorum + fencing évite les double writers.",
-  },
-  "ld-dist-04": {
-    domainLabel: "Systèmes distribués",
-    scenario:
-      "Les compensations d'une saga échouent en milieu de flux après un succès partiel. Exigence opérationnelle ?",
-    choices: [
-      "Runbooks manuels seulement et exiger que les ops réparent les flux bloqués sans état saga persisté",
-      "Persister l'état saga, rendre compensations idempotentes, alerter sur étapes bloquées avec replay sûr",
-      "Imposer two-phase commit sur chaque microservice participant pour tous les flux métier longs",
-      "Concevoir les sagas pour que les compensations n'échouent jamais en ignorant rollback si erreur aval",
-    ],
-    explanation:
-      "État d'orchestration durable et compensations idempotentes permettent la reprise.",
-  },
-  "ld-prod-01": {
-    domainLabel: "Production / Débogage",
-    scenario:
-      "Le déploiement réussit mais le taux d'erreur bondit ; le dernier changement a activé un feature flag ON par défaut. Atténuation sûre la plus rapide ?",
-    choices: [
-      "Couper le flag dans le service de config et confirmer reprise SLO avant rollback de déploiement complet",
-      "Scaler les pods API à zéro jusqu'à baisse du taux d'erreur puis redéployer l'image précédente sans flag",
-      "Attendre le creux de trafic avant investigation pour que le bruit incident n'affecte pas les sessions jour",
-      "Tronquer les tables prod liées et rejouer migrations pour repartir du nouveau chemin code à plat",
-    ],
-    explanation:
-      "Le kill switch par flag est le plus rapide quand l'architecture le supporte.",
-  },
   "ld-prod-02": {
     domainLabel: "Production / Débogage",
     scenario:
-      "CPU élevé sur les nœuds API ; les profils montrent un backtracking catastrophique de regex sur l'entrée utilisateur. Priorité de correction ?",
+      "Le CPU explose sur l'entrée utilisateur et les profils montrent un backtracking regex — priorité de fix ?",
     choices: [
       "Limiter taille entrée, regex sûre ou moteur type RE2, plus test régression avec entrée pathologique",
       "Ajouter capacité CPU sur tous les nœuds API pour que le backtracking finisse avant timeout requête",
@@ -372,7 +209,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-prod-03": {
     domainLabel: "Production / Débogage",
     scenario:
-      "Secret fuité dans le bundle client détecté par un scanner. Séquence correcte ?",
+      "Un scanner trouve le secret Stripe dans le bundle client — séquence d'incident correcte ?",
     choices: [
       "Rotation secret, retrait des builds client, audit logs d'accès, purge historique git si nécessaire",
       "Laisser le secret car HTTPS chiffre le bundle en transit donc le risque d'exposition reste faible",
@@ -382,23 +219,10 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
     explanation:
       "Rotation + retrait côté client + audit : hygiène d'incident standard.",
   },
-  "ld-prod-04": {
-    domainLabel: "Production / Débogage",
-    scenario:
-      "Des 500 intermittents corrèlent avec des pauses GC sur un seul nœud. Prochaine étape de diagnostic ?",
-    choices: [
-      "Comparer métriques heap/GC et limites mémoire conteneur sur ce nœud vs pairs sains pour fuites ou sous-dimension",
-      "Redémarrer pods quotidiennement sans métriques pour que les pauses disparaissent temporairement",
-      "Désactiver le GC sur le nœud affecté pour que l'allocation ne déclenche plus de longues pauses",
-      "Activer logs DEBUG globaux en permanence pour corréler pauses GC avec traces verbeuses dans les logs",
-    ],
-    explanation:
-      "Un GC spécifique à un nœud suggère une pression mémoire ou une fuite isolée à l'instance.",
-  },
   "ld-ai-01": {
     domainLabel: "Ingénierie IA",
     scenario:
-      "Un agent LLM appelle des outils avec des URL fournies par l'utilisateur ; un risque SSRF apparaît en revue. Atténuation ?",
+      "Des URL fournies par l'utilisateur dans cet outil créent un risque SSRF — quelle atténuation ?",
     choices: [
       "Liste blanche domaines sortants, bloquer IP metadata, sandbox egress, valider args outil côté serveur",
       "Faire confiance au modèle pour refuser URLs internes car le prompt système décrit déjà cibles acceptables",
@@ -410,7 +234,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-ai-02": {
     domainLabel: "Ingénierie IA",
     scenario:
-      "Les réponses RAG hallucinent des citations. Amélioration qualité avec observabilité ?",
+      "Les réponses RAG citent des sources qui ne correspondent pas aux chunks récupérés — meilleure amélioration ?",
     choices: [
       "Augmenter température d'échantillonnage pour explorer formulations et citer chunks retrieval variés",
       "Ancrer réponses avec scores retrieval, exiger correspondance chunks cités, logger evals fidélité sur échantillons",
@@ -420,35 +244,10 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
     explanation:
       "Ancrage mesuré + boucles d'eval réduisent les citations infidèles.",
   },
-  "ld-ai-03": {
-    domainLabel: "Ingénierie IA",
-    scenario:
-      "Injection de prompt via le contenu d'e-mail traité par un agent autonome. Défense en profondeur ?",
-    choices: [
-      "Isoler contenu non fiable avec délimiteurs, politiques permissions outils, et garde-fous outils destructifs",
-      "Fusionner tout le texte e-mail dans le prompt système pour instructions et contenu dans un bloc unique",
-      "Donner clés API admin larges à l'agent pour terminer tâches sans approbations humaines répétées",
-      "Traiter injection comme bruit rare et compter sur refus du modèle de base pour ignorer ordres embarqués",
-    ],
-    explanation:
-      "Traiter le texte non fiable comme données ; limiter le rayon d'action des outils.",
-  },
-  "ld-gis-01": {
-    domainLabel: "SIG",
-    scenario:
-      "La latence du serveur de tuiles carte explose mondialement. Origine en UE ; utilisateurs en APAC. Première étape CDN/architecture ?",
-    choices: [
-      "Cache tuiles versionnées au CDN edge avec clés z/x/y et TTL long immutable par release tileset",
-      "Rendre chaque pan/zoom synchroniquement à l'origine pour chaque utilisateur afin de tuiles toujours fraîches",
-      "Stocker pyramide tuiles active en sessionStorage navigateur seulement et éviter fetch réseau après premier load",
-      "Désactiver zoom côté client pour que les utilisateurs demandent moins de tuiles distinctes en navigation",
-    ],
-    explanation: "Les tuiles statiques versionnées sont adaptées au CDN.",
-  },
   "ld-gis-02": {
     domainLabel: "SIG",
     scenario:
-      "Une requête PostGIS trouve les points dans 5 km d'un véhicule en mouvement mis à jour chaque seconde. Besoin de lectures sub-seconde à l'échelle.",
+      "Cette requête doit rester sub-seconde à l'échelle — quel changement base de données aide le plus ?",
     choices: [
       "ST_DWithin sur geography avec index GiST, simplifier géométries, partitionner régions spatiales chaudes",
       "Scanner toute la table points chaque seconde et filtrer distances en SQL sans index spatial sur geometry",
@@ -461,7 +260,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-gis-03": {
     domainLabel: "SIG",
     scenario:
-      "Le client envoie du GeoJSON avec des polygones invalides auto-intersectants pour upload. Approche de validation serveur ?",
+      "Des polygones GeoJSON auto-intersectants cassent les opérations spatiales aval — approche serveur ?",
     choices: [
       "Accepter toute géométrie et compter sur la lib carte frontend pour réparer topologie avant soumission",
       "Valider topologie avec ST_IsValid, rejeter ou réparer sous politique explicite, logger soumissions invalides",
@@ -474,7 +273,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-senior-01": {
     domainLabel: "Ingénierie senior / Communication",
     scenario:
-      "L'équipe propose une réécriture ; le système a des bugs critiques pour le revenu mais des fonctionnalités stables. Votre position en revue d'architecture ?",
+      "Cet ADR de réécriture ignore le risque revenu en cours — quelle position en revue d'architecture ?",
     choices: [
       "Plaider strangler incrémental avec SLO mesurables, rollback, et risque documenté d'une réécriture big-bang",
       "Approuver calendrier réécriture complète immédiate pour corriger structure en une poussée coordonnée",
@@ -487,7 +286,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-senior-02": {
     domainLabel: "Ingénierie senior / Communication",
     scenario:
-      "Postmortem d'incident : ton accusateur envers l'on-call. Meilleure facilitation ?",
+      "Le brouillon de postmortem accuse l'ingénieur on-call — meilleure facilitation ?",
     choices: [
       "Orienter vers timeline, facteurs contributifs et follow-ups actionnables en séparant personnes et systèmes",
       "Nommer les responsables en réunion pour clarifier accountability avant publication du document",
@@ -500,7 +299,7 @@ export const LIGHT_DIAGNOSTIC_FR: Record<string, FrQuestionPack> = {
   "ld-senior-03": {
     domainLabel: "Ingénierie senior / Communication",
     scenario:
-      "Le produit veut une date pour une dépendance multi-équipes ; l'incertitude engineering est élevée. Réponse ?",
+      "Le produit veut une date pour une dépendance multi-équipes avec forte incertitude — comment répondre ?",
     choices: [
       "Engager date fixe pour débloquer ventes même si la confiance engineering dans l'estimation est faible",
       "Proposer fourchette avec hypothèses, jalons, inconnues explicites, et spike pour réduire incertitude",

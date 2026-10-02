@@ -19,10 +19,17 @@ import {
 import { choiceLengthOutlier } from "./presentQuestion";
 
 describe("light diagnostic question bank", () => {
-  it("has 40 unique stable ids", () => {
-    expect(LIGHT_DIAGNOSTIC_QUESTIONS.length).toBe(40);
+  it("has 24 unique stable ids", () => {
+    expect(LIGHT_DIAGNOSTIC_QUESTIONS.length).toBe(24);
     const ids = new Set(LIGHT_DIAGNOSTIC_QUESTIONS.map((q) => q.id));
-    expect(ids.size).toBe(40);
+    expect(ids.size).toBe(24);
+  });
+
+  it("every question has a code example with at least four lines", () => {
+    for (const q of LIGHT_DIAGNOSTIC_QUESTIONS) {
+      expect(q.codeExample, q.id).toBeDefined();
+      expect(q.codeExample.lines.length, q.id).toBeGreaterThanOrEqual(4);
+    }
   });
 
   it("has French copy for every question id", () => {

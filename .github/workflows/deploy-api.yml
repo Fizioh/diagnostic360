@@ -12,6 +12,8 @@ permissions:
   contents: read
   actions: write
   id-token: write
+  # Required for gh variable set MISSION_API_URL
+  administration: write
 
 jobs:
   deploy-worker:

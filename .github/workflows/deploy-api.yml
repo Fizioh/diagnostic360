@@ -12,8 +12,6 @@ permissions:
   contents: read
   actions: write
   id-token: write
-  # Required for gh variable set MISSION_API_URL
-  administration: write
 
 jobs:
   deploy-worker:
@@ -89,10 +87,12 @@ jobs:
           echo "url=$URL" >> "$GITHUB_OUTPUT"
 
       - name: Update MISSION_API_URL repository variable
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh variable set MISSION_API_URL --repo Fizioh/diagnostic360 --body "${{ steps.deploy.outputs.url }}"
+          gh variable set MISSION_API_URL --repo Fizioh/diagnostic360 --body "${{ steps.deploy.outputs.url }}" \
+            || echo "::notice::Set MISSION_API_URL manually if GITHUB_TOKEN lacks Actions variables permission (already configured for production)."
 
       - name: Trigger Pages redeploy
         env:

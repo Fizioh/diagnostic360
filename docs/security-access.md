@@ -46,7 +46,9 @@ Set GitHub repository variable `MISSION_API_URL` to the Worker URL for Pages bui
 | Cloudflare account | `batrom@laposte.net` (Workers + KV `RATE_LIMIT_KV`) |
 | Rate limiting | KV-backed login failures (8 / 15 min → 429) |
 
-Previous Cloudflare account and KV/Worker resources are obsolete. CI deploy of the Worker still requires `CLOUDFLARE_API_TOKEN` on the new account.
+Previous Cloudflare account and KV/Worker resources are obsolete.
+
+**GitHub Actions:** `CLOUDFLARE_API_TOKEN` secret is configured for `deploy-api.yml`. Prefer a dedicated account API token (Workers Scripts Edit + Workers KV Storage Edit on account `ec00ef17164a55a5b3fad3d8b5524201`) over short-lived Wrangler OAuth tokens — rotate via [API token template](https://dash.cloudflare.com/profile/api-tokens?permissionGroupKeys=%5B%7B%22key%22%3A%22workers_scripts%22%2C%22type%22%3A%22edit%22%7D%2C%7B%22key%22%3A%22workers_kv_storage%22%2C%22type%22%3A%22edit%22%7D%5D&accountId=ec00ef17164a55a5b3fad3d8b5524201&zoneId=all&name=GitHub%20Actions%20mission2027-api). `MISSION_API_URL` is set as a repository variable for Pages builds.
 
 ## Audit note (2026-10-02)
 

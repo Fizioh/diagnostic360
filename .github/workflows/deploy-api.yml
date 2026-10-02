@@ -50,12 +50,13 @@ jobs:
           echo "kv_id=$KV_ID" >> "$GITHUB_OUTPUT"
           echo "::notice::Created KV namespace RATE_LIMIT_KV id=$KV_ID — add GitHub secret RATE_LIMIT_KV_ID=$KV_ID for stable redeploys"
 
-      - name: Bind KV in wrangler.toml
+      - name: Verify KV binding in wrangler.toml
         working-directory: services/mission2027-api
         env:
           KV_ID: ${{ steps.kv.outputs.kv_id }}
         run: |
-          printf '\n[[kv_namespaces]]\nbinding = "RATE_LIMIT_KV"\nid = "%s"\n' "$KV_ID" >> wrangler.toml
+          grep -q 'binding = "RATE_LIMIT_KV"' wrangler.toml
+          grep -q "id = \"${KV_ID}\"" wrangler.toml
 
       - name: Sync Worker secrets
         working-directory: services/mission2027-api
@@ -94,4 +95,4 @@ jobs:
       - name: Trigger Pages redeploy
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy-pages.yml --repo Fizioh/diagnostic360
+        run: gh workflow run deploy-pages.yml --repo Fizioh/diagnostic360 || echo "Pages redeploy skipped (no workflow_dispatch on deploy-pages.yml)"

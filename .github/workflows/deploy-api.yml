@@ -6,26 +6,92 @@ on:
     paths:
       - "services/mission2027-api/**"
       - ".github/workflows/deploy-api.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
+  actions: write
+  id-token: write
 
 jobs:
   deploy-worker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: npm
           cache-dependency-path: services/mission2027-api/package-lock.json
+
       - name: Install API dependencies
         working-directory: services/mission2027-api
-        run: npm install
-      - name: Deploy Cloudflare Worker
+        run: npm ci
+
+      - name: Resolve KV namespace id
+        id: kv
         working-directory: services/mission2027-api
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler deploy
+          RATE_LIMIT_KV_ID: ${{ secrets.RATE_LIMIT_KV_ID }}
+        run: |
+          set -e
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "Missing CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID"
+            exit 1
+          fi
+          if [ -n "$RATE_LIMIT_KV_ID" ]; then
+            echo "kv_id=$RATE_LIMIT_KV_ID" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          KV_ID=$(npx wrangler kv:namespace create RATE_LIMIT_KV --json | node -pe "JSON.parse(require('fs').readFileSync(0,'utf8')).id")
+          echo "kv_id=$KV_ID" >> "$GITHUB_OUTPUT"
+          echo "::notice::Created KV namespace RATE_LIMIT_KV id=$KV_ID — add GitHub secret RATE_LIMIT_KV_ID=$KV_ID for stable redeploys"
+
+      - name: Bind KV in wrangler.toml
+        working-directory: services/mission2027-api
+        env:
+          KV_ID: ${{ steps.kv.outputs.kv_id }}
+        run: |
+          printf '\n[[kv_namespaces]]\nbinding = "RATE_LIMIT_KV"\nid = "%s"\n' "$KV_ID" >> wrangler.toml
+
+      - name: Sync Worker secrets
+        working-directory: services/mission2027-api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          PASSPHRASE_SALT: ${{ secrets.PASSPHRASE_SALT }}
+          PASSPHRASE_HASH: ${{ secrets.PASSPHRASE_HASH }}
+        run: |
+          set -e
+          for name in SESSION_SECRET PASSPHRASE_SALT PASSPHRASE_HASH; do
+            eval "val=\$$name"
+            if [ -z "$val" ]; then echo "Missing GitHub secret $name"; exit 1; fi
+            printf '%s' "$val" | npx wrangler secret put "$name"
+          done
+
+      - name: Deploy Cloudflare Worker
+        id: deploy
+        working-directory: services/mission2027-api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler deploy 2>&1 | tee deploy.log
+          URL=$(grep -Eo 'https://[a-zA-Z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          if [ -z "$URL" ]; then URL="https://mission2027-api.${CLOUDFLARE_ACCOUNT_ID}.workers.dev"; fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Update MISSION_API_URL repository variable
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh variable set MISSION_API_URL --repo Fizioh/diagnostic360 --body "${{ steps.deploy.outputs.url }}"
+
+      - name: Trigger Pages redeploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-pages.yml --repo Fizioh/diagnostic360

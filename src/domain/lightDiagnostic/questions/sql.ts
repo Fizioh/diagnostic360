@@ -1,0 +1,68 @@
+import { mcq } from "./helpers";
+
+export const sqlQuestions = [
+  mcq(
+    "ld-sql-01",
+    "sql-postgresql",
+    "SQL / PostgreSQL",
+    "medium",
+    "EXPLAIN shows seq scan on a filtered column with 2% selectivity; index exists but planner ignores it. Statistics are stale after bulk load. First action?",
+    [
+      "Drop the index",
+      "Run ANALYZE on the table and revisit planner estimates",
+      "Force index in every query permanently",
+      "Increase shared_buffers only",
+    ],
+    1,
+    "Stale stats mislead cost estimates; ANALYZE refreshes distribution info.",
+    ["query planner", "ANALYZE", "indexes"],
+  ),
+  mcq(
+    "ld-sql-02",
+    "sql-postgresql",
+    "SQL / PostgreSQL",
+    "hard",
+    "Serializable transaction reports serialization failure under concurrent bookings. Business rule: no double-book same slot. Best handling?",
+    [
+      "Retry the transaction with backoff on serialization failure",
+      "Use READ UNCOMMITTED",
+      "Remove constraints",
+      "Lock entire database",
+    ],
+    0,
+    "Serializable + retry is valid; also consider explicit exclusion constraints and shorter transactions.",
+    ["isolation levels", "retries", "booking"],
+  ),
+  mcq(
+    "ld-sql-03",
+    "sql-postgresql",
+    "SQL / PostgreSQL",
+    "medium",
+    "A pagination query uses OFFSET 500000 and becomes slow. Keyset pagination is possible on created_at,id. Why is keyset better here?",
+    [
+      "OFFSET skips fewer rows logically",
+      "Keyset seeks from last seen tuple instead of scanning skipped rows",
+      "Keyset disables indexes",
+      "OFFSET is deprecated in PostgreSQL",
+    ],
+    1,
+    "Large OFFSET forces scanning discarded rows; keyset uses index seek.",
+    ["pagination", "keyset", "performance"],
+  ),
+  mcq(
+    "ld-sql-04",
+    "sql-postgresql",
+    "SQL / PostgreSQL",
+    "hard",
+    "Long-running migration holds AccessExclusiveLock; app timeouts spike. Operational mitigation during deploy?",
+    [
+      "Use lock_timeout / statement_timeout and split migration phases",
+      "SET synchronous_commit off forever",
+      "Run migration on prod from laptop anonymously",
+      "Disable connections with pg_terminate_backend on all users always",
+    ],
+    0,
+    "Phased migrations and lock timeouts bound blast radius.",
+    ["locks", "migrations", "operations"],
+  ),
+];

@@ -74,6 +74,7 @@ export function DashboardPage() {
               score={d.overallReadinessScore}
               insufficient={d.overallInsufficient}
               profileLabel={d.targetProfileLabel}
+              basis={model.readinessBasis}
             />
           )}
         </CompactPanel>
@@ -117,7 +118,11 @@ export function DashboardPage() {
         </CompactPanel>
 
         <CompactPanel
-          title="Evidence composition"
+          title={
+            model.readinessBasis === "provisional"
+              ? "Evidence composition (Provisional)"
+              : "Evidence composition"
+          }
           className="lg:col-span-4 lg:row-start-3"
           action={
             <Link to="/analytics" className="text-[10px] text-accent hover:underline">

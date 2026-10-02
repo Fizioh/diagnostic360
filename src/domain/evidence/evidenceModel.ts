@@ -15,6 +15,16 @@ export const READINESS_SCORE_REFERENCE = 6;
 
 export const RECENCY_HALF_LIFE_DAYS = 90;
 
+export const PROVISIONAL_EVIDENCE_WEIGHT_FACTOR = 0.35;
+
+export function isProvisionalEvidence(item: EvidenceItem): boolean {
+  return item.sourceType === "light-diagnostic" || item.provisional === true;
+}
+
+export function isValidatedPracticalEvidence(item: EvidenceItem): boolean {
+  return isValidatedEvidence(item) && !isProvisionalEvidence(item);
+}
+
 export function isValidatedEvidence(item: EvidenceItem): boolean {
   return Boolean(item.validatedAt?.trim());
 }
@@ -29,7 +39,8 @@ export function recencyFactor(validatedAt: string, asOf: Date = new Date()): num
 
 export function evidenceContribution(item: EvidenceItem, asOf: Date = new Date()): number {
   if (!isValidatedEvidence(item)) return 0;
-  const base = EVIDENCE_STRENGTH_WEIGHT[item.strength];
+  let base = EVIDENCE_STRENGTH_WEIGHT[item.strength];
+  if (isProvisionalEvidence(item)) base *= PROVISIONAL_EVIDENCE_WEIGHT_FACTOR;
   return base * recencyFactor(item.validatedAt!, asOf);
 }
 
@@ -37,7 +48,11 @@ export function validatedEvidenceForDomain(
   domain: ReadinessDomain,
   evidence: EvidenceItem[],
 ): EvidenceItem[] {
-  return evidence.filter((e) => e.domain === domain && isValidatedEvidence(e));
+  const practical = evidence.filter(
+    (e) => e.domain === domain && isValidatedPracticalEvidence(e),
+  );
+  if (practical.length > 0) return practical;
+  return evidence.filter((e) => e.domain === domain && isValidatedEvidence(e) && isProvisionalEvidence(e));
 }
 
 export function domainEvidenceScore(
@@ -66,8 +81,12 @@ export function computeConfidenceCalibration(
   domain: ReadinessDomain,
   evidence: EvidenceItem[],
 ): ConfidenceCalibration {
-  const diagnostic = validatedEvidenceForDomain(domain, evidence).filter(
-    (e) => e.sourceType === "diagnostic" && e.confidence != null,
+  const diagnostic = evidence.filter(
+    (e) =>
+      e.domain === domain &&
+      isValidatedEvidence(e) &&
+      (e.sourceType === "diagnostic" || e.sourceType === "light-diagnostic") &&
+      e.confidence != null,
   );
   if (diagnostic.length === 0) return null;
   let selfSum = 0;

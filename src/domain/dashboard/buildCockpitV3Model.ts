@@ -2,6 +2,7 @@ import type { DiagnosticRun } from "../../types/diagnostic";
 import type { NotionPlanningSnapshot } from "../../integrations/notion/types";
 import { computeMissionAnalytics, type MissionAnalyticsModel } from "../analytics";
 import type { MissionWorkspaceV1, PreparationTask } from "../types";
+import { computeReadinessBasis, type ReadinessBasis } from "../readiness/readinessBasis";
 import { buildDashboardModel, type DashboardModel } from "./buildDashboardModel";
 
 export interface ProofsSummary {
@@ -15,6 +16,7 @@ export interface CockpitV3Model {
   analytics: MissionAnalyticsModel;
   proofsSummary: ProofsSummary;
   attentionLimit: number;
+  readinessBasis: ReadinessBasis;
 }
 
 function isProofCompleteStatus(status: string): boolean {
@@ -43,5 +45,6 @@ export function buildCockpitV3Model(input: {
     analytics,
     proofsSummary: proofsSummary(input.snapshot),
     attentionLimit: 4,
+    readinessBasis: computeReadinessBasis(input.workspace),
   };
 }

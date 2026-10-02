@@ -43,7 +43,15 @@ export interface EvidenceItem {
   description: string;
   validatedAt?: string;
   confidence?: number;
-  sourceType: "diagnostic" | "retest" | "mock-interview" | "oss" | "document" | "task";
+  sourceType:
+    | "diagnostic"
+    | "light-diagnostic"
+    | "retest"
+    | "mock-interview"
+    | "oss"
+    | "document"
+    | "task";
+  provisional?: boolean;
   sourceRunId?: string;
   sourceReviewId?: string;
 }

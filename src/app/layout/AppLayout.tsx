@@ -4,7 +4,7 @@ import { useAuth } from "../../features/auth/AuthProvider";
 const nav = [
   { to: "/", label: "Cockpit" },
   { to: "/today", label: "Today" },
-  { to: "/diagnostic", label: "Diagnostic 360" },
+  { to: "/diagnostic", label: "Diagnostic" },
   { to: "/readiness", label: "Readiness" },
   { to: "/analytics", label: "Analytics" },
   { to: "/remediation", label: "Remediation" },

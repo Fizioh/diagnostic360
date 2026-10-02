@@ -1,0 +1,68 @@
+import { mcq } from "./helpers";
+
+export const productionQuestions = [
+  mcq(
+    "ld-prod-01",
+    "production-devops",
+    "Production / Debugging",
+    "medium",
+    "Deploy succeeds but error rate jumps; last change enabled new feature flag default ON. Fastest safe mitigation?",
+    [
+      "Toggle flag OFF via config service and verify SLO recovery before deeper rollback",
+      "Scale pods to zero permanently",
+      "Wait for weekend",
+      "Clear production database",
+    ],
+    0,
+    "Flag kill switch is fastest when architecture supports it.",
+    ["feature flags", "incident response", "rollback"],
+  ),
+  mcq(
+    "ld-prod-02",
+    "debugging",
+    "Production / Debugging",
+    "medium",
+    "CPU high on API nodes; profiles show regex catastrophic backtracking on user input. Fix priority?",
+    [
+      "Add input limits, safe regex, or RE2-style engine; add regression test with evil input",
+      "Add more CPU",
+      "Disable logging",
+      "Profile less",
+    ],
+    0,
+    "ReDoS is a code/input validation fix, not capacity only.",
+    ["ReDoS", "profiling", "input validation"],
+  ),
+  mcq(
+    "ld-prod-03",
+    "production-devops",
+    "Production / Debugging",
+    "hard",
+    "Secret leaked in client bundle found by scanner. Correct sequence?",
+    [
+      "Rotate secret, purge from git history if needed, audit access logs, redeploy without secret in client",
+      "Ignore if HTTPS",
+      "Rename secret file only",
+      "Post secret in status page",
+    ],
+    0,
+    "Rotation + removal from client + audit is standard incident hygiene.",
+    ["secrets", "supply chain", "incident response"],
+  ),
+  mcq(
+    "ld-prod-04",
+    "debugging",
+    "Production / Debugging",
+    "hard",
+    "Intermittent 500s correlate with GC pauses on one node only. Next diagnostic step?",
+    [
+      "Compare heap/GC metrics and container memory limits vs other nodes; check for memory leak or undersized heap",
+      "Restart random pods daily without metrics",
+      "Disable GC",
+      "Increase log verbosity to DEBUG globally forever",
+    ],
+    0,
+    "Node-specific GC suggests memory pressure or leak isolated to instance.",
+    ["GC", "observability", "noisy neighbor"],
+  ),
+];

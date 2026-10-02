@@ -1,0 +1,68 @@
+import { mcq } from "./helpers";
+
+export const algorithmQuestions = [
+  mcq(
+    "ld-algo-01",
+    "algorithms",
+    "Algorithms",
+    "medium",
+    "Streaming top-K frequent elements from a firehose with bounded memory. Which approach fits?",
+    [
+      "Sort entire history on disk each second",
+      "Approximate heavy hitters (count-min sketch / space-saving) with defined error bounds",
+      "Hash map storing every unique key forever",
+      "Binary search on unsorted stream",
+    ],
+    1,
+    "Approximation trades exactness for bounded memory at scale.",
+    ["streaming", "heavy hitters", "memory bounds"],
+  ),
+  mcq(
+    "ld-algo-02",
+    "algorithms",
+    "Algorithms",
+    "hard",
+    "Dijkstra fails on graphs with negative edges. You need shortest paths with possible negative weights but no negative cycles. Standard fix?",
+    [
+      "Bellman-Ford or SPFA with cycle detection",
+      "Run Dijkstra twice",
+      "Use BFS only",
+      "Multiply weights by -1",
+    ],
+    0,
+    "Bellman-Ford handles negative edges with cycle check.",
+    ["shortest path", "negative weights"],
+  ),
+  mcq(
+    "ld-algo-03",
+    "algorithms",
+    "Algorithms",
+    "medium",
+    "Merge k sorted log files each with millions of lines using minimal memory. Best pattern?",
+    [
+      "Load all files into RAM and sort once",
+      "K-way merge using a min-heap of current heads",
+      "Nested loops pairwise merge unsorted",
+      "grep randomly until done",
+    ],
+    1,
+    "Heap merge is O(total log k) time with O(k) memory.",
+    ["k-way merge", "heap", "external sort"],
+  ),
+  mcq(
+    "ld-algo-04",
+    "algorithms",
+    "Algorithms",
+    "hard",
+    "Cache with LRU eviction and TTL per key. Which design avoids O(n) scans on expiry?",
+    [
+      "Lazy expiry on access plus periodic cleanup or timing wheel for buckets",
+      "Scan all keys every GET",
+      "Never expire",
+      "Single global TTL only with full flush",
+    ],
+    0,
+    "Lazy + bucketed expiry amortizes cleanup cost.",
+    ["LRU", "TTL", "cache design"],
+  ),
+];

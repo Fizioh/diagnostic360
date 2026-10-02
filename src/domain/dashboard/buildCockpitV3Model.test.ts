@@ -14,5 +14,6 @@ describe("buildCockpitV3Model", () => {
     expect(model.analytics.evidenceCompositionEmpty).toBe(true);
     expect(model.analytics.profileTrend).toEqual([]);
     expect(model.proofsSummary.hasData).toBe(false);
+    expect(model.readinessBasis).toBe("none");
   });
 });

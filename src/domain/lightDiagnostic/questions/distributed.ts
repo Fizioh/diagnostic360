@@ -1,0 +1,68 @@
+import { mcq } from "./helpers";
+
+export const distributedQuestions = [
+  mcq(
+    "ld-dist-01",
+    "distributed-systems",
+    "Distributed Systems",
+    "medium",
+    "Microservice A calls B; B is slow; thread pools exhaust in A. Immediate resilience improvement?",
+    [
+      "Add timeouts, bulkheads, and circuit breaker with fallback or error budget",
+      "Increase threads unbounded",
+      "Retry immediately forever synchronously",
+      "Merge services into one JVM",
+    ],
+    0,
+    "Timeouts + isolation prevent cascade; blind retries worsen overload.",
+    ["circuit breaker", "bulkhead", "cascading failure"],
+  ),
+  mcq(
+    "ld-dist-02",
+    "distributed-systems",
+    "Distributed Systems",
+    "hard",
+    "Kafka consumer lag grows; processing is idempotent but order matters per partition key. Scale consumers?",
+    [
+      "Increase partitions and consumers with same group up to partition count; preserve key routing",
+      "Run duplicate consumer groups on same topic without coordination",
+      "Delete topic",
+      "Switch to UDP",
+    ],
+    0,
+    "Parallelism bounded by partitions; key preserves order per entity.",
+    ["Kafka", "partitioning", "ordering"],
+  ),
+  mcq(
+    "ld-dist-03",
+    "distributed-systems",
+    "Distributed Systems",
+    "medium",
+    "Split-brain in a leader-elected service during network partition. Prevention emphasis?",
+    [
+      "Require quorum (majority) for leadership and fencing tokens for writers",
+      "Two leaders are fine if load balanced",
+      "Use wall-clock sync only",
+      "Disable heartbeats",
+    ],
+    0,
+    "Quorum + fencing avoids dual writers.",
+    ["leader election", "split brain", "quorum"],
+  ),
+  mcq(
+    "ld-dist-04",
+    "distributed-systems",
+    "Distributed Systems",
+    "hard",
+    "Saga compensations fail mid-flow after partial success. Operational requirement?",
+    [
+      "Manual runbooks only",
+      "Persist saga state, make compensations idempotent, alert on stuck states with replay tooling",
+      "Use two-phase commit across all microservices always",
+      "Avoid failures",
+    ],
+    1,
+    "Durable orchestration state and idempotent compensations enable recovery.",
+    ["saga", "compensation", "orchestration"],
+  ),
+];

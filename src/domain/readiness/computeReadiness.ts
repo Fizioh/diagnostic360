@@ -90,6 +90,9 @@ export function weaknessesForDomain(
   return weaknesses.filter((w) => w.domain === domain && w.status !== "mastered");
 }
 
-export function computeAllDomains(evidence: EvidenceItem[]): ReadinessDomainView[] {
-  return ALL_DOMAINS.map((d) => computeDomainReadiness(d, evidence));
+export function computeAllDomains(
+  evidence: EvidenceItem[],
+  asOf: Date = new Date(),
+): ReadinessDomainView[] {
+  return ALL_DOMAINS.map((d) => computeDomainReadiness(d, evidence, asOf));
 }

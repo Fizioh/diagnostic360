@@ -5,6 +5,7 @@ import { LIGHT_DIAGNOSTIC_QUESTIONS } from "../../domain/lightDiagnostic/questio
 import { buildLightDiagnosticResults } from "../../domain/lightDiagnostic/scoring";
 import { applyLightDiagnosticResults } from "../../domain/lightDiagnostic/applyResults";
 import { getLocalizedLightQuestions, localizeLightQuestion } from "../../domain/lightDiagnostic/localizeQuestion";
+import { presentLightQuestion } from "../../domain/lightDiagnostic/presentQuestion";
 import { MODULES } from "../../data/modulesMeta";
 import { useLightDiagnostic } from "../../hooks/useLightDiagnostic";
 import { useWorkspace } from "../../hooks/useWorkspace";
@@ -84,7 +85,12 @@ function LightSession() {
   const [confidence, setConfidence] = useState<1 | 2 | 3 | 4 | 5 | null>(null);
 
   const canonical = session ? LIGHT_DIAGNOSTIC_QUESTIONS[session.currentIndex] : null;
-  const question = canonical ? localizeLightQuestion(canonical, locale) : null;
+  const presented = useMemo(() => {
+    if (!canonical || !session) return null;
+    const localized = localizeLightQuestion(canonical, locale);
+    return presentLightQuestion(localized, session.id);
+  }, [canonical, session, locale]);
+  const question = presented?.question ?? null;
 
   useEffect(() => {
     if (!loading && session?.status === "complete") {
@@ -108,14 +114,14 @@ function LightSession() {
   }, [question?.id]);
 
   if (loading || !session) return <p className="p-8 text-muted">{t.light.loading}</p>;
-  if (!question || !canonical) return <Navigate to="/diagnostic/light" replace />;
+  if (!question || !canonical || !presented) return <Navigate to="/diagnostic/light" replace />;
 
   const progress = session.responses.length;
   const total = LIGHT_DIAGNOSTIC_QUESTIONS.length;
 
   const confirm = async () => {
     if (choice == null || confidence == null) return;
-    const next = await submitAnswer(canonical, choice, confidence);
+    const next = await submitAnswer(canonical, presented.originalChoiceIndex(choice), confidence);
     setChoice(null);
     setConfidence(null);
     if (next?.status === "complete") navigate("/diagnostic/light/results");

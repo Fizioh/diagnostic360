@@ -16,6 +16,7 @@ import {
   evidenceContribution,
   validatedEvidenceForDomain,
 } from "../evidence/evidenceModel";
+import { choiceLengthOutlier } from "./presentQuestion";
 
 describe("light diagnostic question bank", () => {
   it("has 40 unique stable ids", () => {
@@ -30,6 +31,12 @@ describe("light diagnostic question bank", () => {
       expect(fr, q.id).toBeDefined();
       expect(fr.scenario.length).toBeGreaterThan(10);
       expect(fr.choices).toHaveLength(4);
+    }
+  });
+
+  it("no question has correct choice length outlier", () => {
+    for (const q of LIGHT_DIAGNOSTIC_QUESTIONS) {
+      expect(choiceLengthOutlier(q), q.id).toBe(false);
     }
   });
 });

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { FixtureNotionAdapter } from "../integrations/notion/FixtureNotionAdapter";
+import { useCallback, useEffect, useState } from "react";
+import { StaticSnapshotNotionAdapter } from "../integrations/notion/StaticSnapshotNotionAdapter";
 import type { NotionPlanningSnapshot } from "../integrations/notion/types";
 
 export function useNotionPlanning() {
@@ -7,14 +7,20 @@ export function useNotionPlanning() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const adapter = new FixtureNotionAdapter();
-    adapter
+  const reload = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    const adapter = new StaticSnapshotNotionAdapter();
+    return adapter
       .fetchPlanningSnapshot()
       .then(setSnapshot)
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : "Notion fetch failed"))
+      .catch((e: unknown) => setError(e instanceof Error ? e.message : "Planning snapshot failed"))
       .finally(() => setLoading(false));
   }, []);
 
-  return { snapshot, loading, error };
+  useEffect(() => {
+    reload();
+  }, [reload]);
+
+  return { snapshot, loading, error, reload };
 }

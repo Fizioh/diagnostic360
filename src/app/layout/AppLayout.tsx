@@ -5,6 +5,7 @@ const nav = [
   { to: "/today", label: "Today" },
   { to: "/diagnostic", label: "Diagnostic 360" },
   { to: "/readiness", label: "Readiness" },
+  { to: "/data", label: "Data" },
 ];
 
 export function AppLayout() {

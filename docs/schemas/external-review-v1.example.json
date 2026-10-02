@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "runId": "00000000-0000-0000-0000-000000000000",
+  "reviewedAt": "2026-10-02T12:00:00.000Z",
+  "reviewerLabel": "external-reviewer",
+  "modules": [
+    {
+      "moduleId": "coding",
+      "outcome": "validated-pass",
+      "score": null,
+      "summary": "Correct asymptotic reasoning; edge cases covered.",
+      "weaknesses": []
+    },
+    {
+      "moduleId": "system-design",
+      "outcome": "validated-partial",
+      "score": null,
+      "summary": "Good data model; weak on failure modes.",
+      "weaknesses": ["Partition strategy under load"]
+    }
+  ],
+  "overallNotes": "No automatic /100 score — outcomes must be explicitly validated by reviewer."
+}

@@ -3,6 +3,7 @@ import type { DiagnosticRun } from "../types/diagnostic";
 export function buildExportJson(run: DiagnosticRun): string {
   const payload = {
     version: run.version,
+    reviewTemplateHint: "Import structured review as DiagnosticExternalReviewV1 JSON after external assessment",
     run: {
       id: run.id,
       createdAt: run.createdAt,

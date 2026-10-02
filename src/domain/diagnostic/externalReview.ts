@@ -1,5 +1,6 @@
-import type { EvidenceItem, MissionWorkspaceV1, ReadinessDomain, WeaknessItem } from "../types";
+import type { EvidenceItem, MissionWorkspaceV1, ReadinessDomain } from "../types";
 import type { ModuleId } from "../../types/diagnostic";
+import { openWeaknessWithRetest } from "../weakness/retestLoop";
 
 export type ReviewModuleOutcome =
   | "validated-pass"
@@ -91,15 +92,14 @@ export function applyExternalReview(
   review: DiagnosticExternalReviewV1,
 ): MissionWorkspaceV1 {
   const at = new Date().toISOString();
-  const evidence: EvidenceItem[] = [...workspace.evidence];
-  const weaknesses: WeaknessItem[] = [...workspace.weaknesses];
+  let next = { ...workspace, evidence: [...workspace.evidence] };
 
   for (const mod of review.modules) {
     const domain = MODULE_DOMAINS[mod.moduleId];
     if (!domain) continue;
     const strength = outcomeToStrength(mod.outcome);
     if (strength) {
-      evidence.push({
+      next.evidence.push({
         id: crypto.randomUUID(),
         domain,
         strength,
@@ -113,17 +113,16 @@ export function applyExternalReview(
       const lines = mod.weaknesses?.length ? mod.weaknesses : [mod.summary ?? "Gap identified in external review"];
       for (const summary of lines) {
         if (!summary?.trim()) continue;
-        weaknesses.push({
+        next = openWeaknessWithRetest(next, {
           id: crypto.randomUUID(),
           domain,
           summary: summary.trim(),
           remediation: mod.summary,
-          status: "open",
           createdAt: at,
         });
       }
     }
   }
 
-  return { ...workspace, evidence, weaknesses, updatedAt: at };
+  return { ...next, updatedAt: at };
 }

@@ -112,7 +112,7 @@ export function DataBackupPage() {
             onClick={resetNotionImport}
             className="rounded-md border border-border px-4 py-2 font-mono text-sm text-muted hover:text-accent"
           >
-            Reset Notion to bundled snapshot
+            Clear imported Notion snapshot
           </button>
         </div>
         {message && <p className="mt-3 text-xs text-muted">{message}</p>}

@@ -1,0 +1,6 @@
+name = "mission2027-api"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://fizioh.github.io,http://localhost:5173"

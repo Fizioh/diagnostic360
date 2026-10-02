@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { StaticSnapshotNotionAdapter } from "../integrations/notion/StaticSnapshotNotionAdapter";
+import { ApiNotionAdapter } from "../integrations/notion/ApiNotionAdapter";
 import type { NotionPlanningSnapshot } from "../integrations/notion/types";
 
 export function useNotionPlanning() {
@@ -10,7 +10,7 @@ export function useNotionPlanning() {
   const reload = useCallback(() => {
     setLoading(true);
     setError(null);
-    const adapter = new StaticSnapshotNotionAdapter();
+    const adapter = new ApiNotionAdapter();
     return adapter
       .fetchPlanningSnapshot()
       .then(setSnapshot)

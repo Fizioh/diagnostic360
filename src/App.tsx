@@ -3,6 +3,7 @@ import { AppLayout } from "./app/layout/AppLayout";
 import { DataBackupPage } from "./features/data/DataBackupPage";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { DiagnosticFeature } from "./features/diagnostic/DiagnosticFeature";
+import { RemediationPage } from "./features/remediation/RemediationPage";
 import { ReadinessPage } from "./features/readiness/ReadinessPage";
 import { TodayPage } from "./features/today/TodayPage";
 
@@ -15,6 +16,7 @@ export default function App() {
           <Route index element={<DashboardPage />} />
           <Route path="today" element={<TodayPage />} />
           <Route path="readiness" element={<ReadinessPage />} />
+          <Route path="remediation" element={<RemediationPage />} />
           <Route path="data" element={<DataBackupPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

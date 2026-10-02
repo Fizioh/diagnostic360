@@ -1,6 +1,6 @@
 export interface NotionPlanningSnapshot {
   fetchedAt: string;
-  source: "notion-api" | "fixture" | "static-snapshot";
+  source: "notion-api" | "fixture" | "static-snapshot" | "authenticated-api";
   roadmap: { title: string; phase: string; status: string }[];
   preparationTasks: { title: string; status: string; week?: string }[];
   pipeline: { company: string; role: string; status: string }[];

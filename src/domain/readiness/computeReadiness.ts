@@ -42,8 +42,18 @@ export function computeDomainReadiness(
       insufficientEvidence: true,
     };
   }
-  const weighted = items.reduce((s, e) => s + WEIGHT[e.strength], 0);
+  const sorted = [...items].sort((a, b) => (a.validatedAt ?? "").localeCompare(b.validatedAt ?? ""));
+  const weighted = sorted.reduce((s, e) => s + WEIGHT[e.strength], 0);
   const score = Math.min(100, Math.round((weighted / 6) * 100));
+  let trend: ReadinessDomainView["trend"] = "flat";
+  if (sorted.length >= 2) {
+    const prevWeighted = sorted
+      .slice(0, -1)
+      .reduce((s, e) => s + WEIGHT[e.strength], 0);
+    const prevScore = Math.min(100, Math.round((prevWeighted / 6) * 100));
+    if (score > prevScore) trend = "up";
+    else if (score < prevScore) trend = "down";
+  }
   const confidences = items.map((e) => e.confidence).filter((c): c is number => c != null);
   const confidence =
     confidences.length > 0
@@ -55,9 +65,20 @@ export function computeDomainReadiness(
     score,
     confidence,
     evidenceCount: items.length,
-    trend: "flat",
+    trend,
     insufficientEvidence: items.every((e) => e.strength === "weak") && items.length < 2,
   };
+}
+
+export function evidenceForDomain(domain: ReadinessDomain, evidence: EvidenceItem[]): EvidenceItem[] {
+  return evidence.filter((e) => e.domain === domain && e.validatedAt);
+}
+
+export function weaknessesForDomain(
+  domain: ReadinessDomain,
+  weaknesses: import("../types").WeaknessItem[],
+): import("../types").WeaknessItem[] {
+  return weaknesses.filter((w) => w.domain === domain && w.status !== "mastered");
 }
 
 export function computeAllDomains(evidence: EvidenceItem[]): ReadinessDomainView[] {

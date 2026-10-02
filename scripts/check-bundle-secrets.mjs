@@ -5,6 +5,9 @@ const distAssets = join(process.cwd(), "dist", "assets");
 const forbidden = [
   /NOTION_TOKEN/i,
   /NOTION_API/i,
+  /VITE_ACCESS/i,
+  /PASSPHRASE_HASH/i,
+  /SESSION_SECRET/i,
   /ghp_[a-zA-Z0-9]{20,}/,
   /github_pat_/,
   /sk-[a-zA-Z0-9]{20,}/,

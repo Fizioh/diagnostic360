@@ -26,6 +26,8 @@ jobs:
       - run: npm run lint
       - run: npm run test
       - run: npm run build:check
+        env:
+          VITE_MISSION_API_URL: ${{ vars.MISSION_API_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

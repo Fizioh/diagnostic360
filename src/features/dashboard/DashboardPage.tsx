@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { computeAllDomains } from "../../domain/readiness/computeReadiness";
+import { computeAllProfiles } from "../../domain/readiness/targetProfiles";
 import { mergePreparationTasks, tasksByStatus } from "../../domain/tasks/preparationTasks";
 import { useDiagnosticSummary } from "../../hooks/useDiagnosticSummary";
 import { useNotionPlanning } from "../../hooks/useNotionPlanning";
@@ -21,6 +22,7 @@ export function DashboardPage() {
   const diagnostic = useDiagnosticSummary();
   const evidence = workspace?.evidence ?? [];
   const domains = computeAllDomains(evidence);
+  const profiles = computeAllProfiles(evidence);
   const validatedCount = domains.filter((d) => !d.insufficientEvidence).length;
   const strongEvidence = evidence.filter((e) => e.validatedAt && e.strength === "strong").length;
   const mediumEvidence = evidence.filter((e) => e.validatedAt && e.strength === "medium").length;
@@ -133,12 +135,33 @@ export function DashboardPage() {
           )}
         </Card>
 
+        <Card title="Target profiles">
+          <ul className="space-y-1 text-xs text-muted">
+            {profiles.map((p) => (
+              <li key={p.profileId}>
+                {p.label}:{" "}
+                {p.insufficientEvidence ? (
+                  <span className="text-amber-200/90">Insufficient evidence</span>
+                ) : (
+                  p.score
+                )}
+              </li>
+            ))}
+          </ul>
+          <Link to="/readiness" className="mt-3 inline-block font-mono text-xs text-accent hover:underline">
+            View Readiness →
+          </Link>
+        </Card>
+
         <Card title="Needs attention">
           <ul className="space-y-1 text-muted">
             <li>Open weaknesses: {openWeaknesses}</li>
             <li>Scheduled retests: {dueRetests}</li>
             <li>Interview error log (Notion): {errorLogOpen}</li>
           </ul>
+          <Link to="/remediation" className="mt-3 inline-block font-mono text-xs text-accent hover:underline">
+            Open remediation →
+          </Link>
         </Card>
 
         <Card title="Mission pipeline">

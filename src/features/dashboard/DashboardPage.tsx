@@ -50,19 +50,25 @@ export function DashboardPage() {
     d.weekProgress.planned > 0 ? Math.round((d.weekProgress.completed / d.weekProgress.planned) * 100) : 0;
 
   return (
-    <div className="mx-auto flex max-w-[1600px] flex-col overflow-y-auto md:h-[calc(100dvh-7.5rem)] md:overflow-hidden md:py-0">
-      <header className="mb-3 flex shrink-0 items-end justify-between gap-4 border-b border-border/50 pb-2.5">
+    <div className="cockpit-scene mx-auto flex max-w-[1600px] flex-col overflow-y-auto md:-mx-2 md:h-[calc(100dvh-7.5rem)] md:overflow-hidden md:px-2 md:py-0">
+      <div
+        className="pointer-events-none fixed right-[6%] top-14 hidden h-52 w-52 rounded-full bg-gradient-to-br from-neon-blue/25 to-neon-cyan/10 blur-2xl md:block"
+        aria-hidden
+      />
+      <header className="relative mb-3 flex shrink-0 items-end justify-between gap-4 border-b border-neon-blue/15 pb-2.5">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Mission 2027</p>
-          <h1 className="text-lg font-semibold tracking-tight text-accent">Engineering Readiness Cockpit</h1>
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-neon-cyan/80">Mission 2027</p>
+          <h1 className="bg-gradient-to-r from-accent to-neon-cyan/90 bg-clip-text text-lg font-semibold tracking-tight text-transparent">
+            Engineering Readiness Cockpit
+          </h1>
           <p className="mt-0.5 font-mono text-[11px] text-muted">
             {d.missionWeek && <span>{d.missionWeek}</span>}
             {d.missionPhase && <span className="ml-2 text-muted/80">· {d.missionPhase}</span>}
           </p>
         </div>
-        <div className="text-right">
-          <p className="text-[10px] uppercase tracking-wide text-muted">Target profile</p>
-          <p className="mt-0.5 text-sm font-medium text-accent">{d.targetProfileLabel}</p>
+        <div className="cockpit-target-pill">
+          <span className="text-[10px] uppercase tracking-wide text-muted">Target</span>
+          <span className="font-medium text-accent">{d.targetProfileLabel}</span>
         </div>
       </header>
 
@@ -76,10 +82,7 @@ export function DashboardPage() {
           </p>
           <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted">{d.todayFocus.reason}</p>
           <div className="mt-3 flex flex-wrap items-center gap-4">
-            <Link
-              to={d.todayFocus.href}
-              className="rounded-md bg-accent px-3.5 py-2 text-xs font-semibold text-surface shadow-sm transition hover:bg-accent/92 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            >
+            <Link to={d.todayFocus.href} className="cockpit-btn-primary">
               {d.todayFocus.ctaLabel}
             </Link>
             <div className="min-w-[8rem] flex-1">
@@ -87,8 +90,11 @@ export function DashboardPage() {
                 <span>Weekly prep</span>
                 <span className="tabular-nums">{d.weekProgress.label}</span>
               </div>
-              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-border/70">
-                <div className="h-full rounded-full bg-signal/80 transition-all" style={{ width: `${weekPct}%` }} />
+              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-border/80">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-neon-blue to-neon-cyan shadow-[0_0_12px_rgba(46,230,255,0.45)] transition-all"
+                  style={{ width: `${weekPct}%` }}
+                />
               </div>
             </div>
           </div>
@@ -112,7 +118,7 @@ export function DashboardPage() {
           title="Domain readiness"
           className="min-h-0 md:col-span-7 md:row-start-2"
           action={
-            <Link to="/readiness" className="text-[11px] font-medium text-signal hover:underline">
+            <Link to="/readiness" className="cockpit-link text-[11px]">
               View all →
             </Link>
           }
@@ -122,8 +128,11 @@ export function DashboardPage() {
 
         <CockpitSection title="Needs attention" className="min-h-0 md:col-span-5 md:row-start-2">
           {attention.length === 0 ? (
-            <div className="rounded-md border border-dashed border-border/50 bg-surface/30 px-2.5 py-3 text-center">
-              <p className="text-xs font-medium text-accent/90">All clear</p>
+            <div className="relative overflow-hidden rounded-lg border border-signal/25 bg-signal/5 px-2.5 py-4 text-center shadow-neon-green">
+              <p className="text-2xl text-signal" aria-hidden>
+                ✓
+              </p>
+              <p className="text-xs font-medium text-accent">All clear</p>
               <p className="mt-0.5 text-[11px] text-muted">No urgent signals right now.</p>
             </div>
           ) : (
@@ -157,7 +166,7 @@ export function DashboardPage() {
           title="Readiness trend"
           className="md:col-span-8 md:row-start-3"
           action={
-            <Link to="/analytics" className="text-[11px] font-medium text-signal hover:underline">
+            <Link to="/analytics" className="cockpit-link text-[11px]">
               Analytics →
             </Link>
           }

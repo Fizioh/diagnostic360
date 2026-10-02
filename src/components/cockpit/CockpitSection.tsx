@@ -17,23 +17,27 @@ export function CockpitSection({
 }: CockpitSectionProps) {
   const shell =
     variant === "focus"
-      ? "border border-border/55 bg-panel/95 shadow-[inset_3px_0_0_0_rgba(107,158,122,0.55)]"
+      ? "cockpit-glass-focus rounded-xl"
       : variant === "kpi"
-        ? "border border-border/45 bg-panel/70"
-        : "border border-border/50 bg-panel/85";
+        ? "cockpit-glass-kpi rounded-lg"
+        : "cockpit-glass rounded-xl";
 
   const headerPad = variant === "kpi" ? "px-2.5 py-1" : "px-3 py-1.5";
   const bodyPad = variant === "kpi" ? "px-2.5 py-2" : "px-3 py-2.5";
 
   return (
-    <section
-      className={`flex min-h-0 flex-col overflow-hidden rounded-lg ${shell} ${className}`}
-    >
-      <div className={`flex shrink-0 items-center justify-between gap-2 border-b border-border/35 ${headerPad}`}>
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">{title}</h2>
+    <section className={`relative flex min-h-0 flex-col overflow-hidden ${shell} ${className}`}>
+      {variant === "focus" ? (
+        <>
+          <div className="cockpit-orb -bottom-10 left-0 h-36 w-full bg-gradient-to-t from-neon-cyan/20 to-transparent opacity-90" aria-hidden />
+          <div className="cockpit-orb -right-16 -top-8 h-44 w-44 bg-neon-blue/15" aria-hidden />
+        </>
+      ) : null}
+      <div className={`relative z-[1] flex shrink-0 items-center justify-between gap-2 border-b border-neon-blue/10 ${headerPad}`}>
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">{title}</h2>
         {action}
       </div>
-      <div className={`min-h-0 flex-1 overflow-auto ${bodyPad}`}>{children}</div>
+      <div className={`relative z-[1] min-h-0 flex-1 overflow-auto ${bodyPad}`}>{children}</div>
     </section>
   );
 }

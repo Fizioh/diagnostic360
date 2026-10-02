@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ChartCompactEmpty } from "./ChartCompactEmpty";
 
@@ -7,6 +8,44 @@ interface ReadinessGaugeProps {
   profileLabel: string;
   basis?: "validated" | "provisional" | "none";
   qualitySubtitle?: string | null;
+}
+
+function ArcGauge({
+  pct,
+  strokeClass,
+  children,
+}: {
+  pct: number;
+  strokeClass: string;
+  children: ReactNode;
+}) {
+  const r = 34;
+  const c = Math.PI * r;
+  const dash = c * Math.min(1, Math.max(0, pct));
+  return (
+    <svg width="80" height="48" viewBox="0 0 80 48" className="shrink-0 drop-shadow-[0_0_12px_rgba(46,230,255,0.25)]" aria-hidden>
+      <path
+        d="M 8 44 A 34 34 0 0 1 72 44"
+        fill="none"
+        stroke="currentColor"
+        className="text-border/90"
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
+      <path
+        d="M 8 44 A 34 34 0 0 1 72 44"
+        fill="none"
+        stroke="currentColor"
+        className={strokeClass}
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeDasharray={`${dash} ${c}`}
+      />
+      <foreignObject x="0" y="14" width="80" height="32">
+        <div className="flex h-full items-end justify-center">{children}</div>
+      </foreignObject>
+    </svg>
+  );
 }
 
 export function ReadinessGauge({
@@ -19,15 +58,12 @@ export function ReadinessGauge({
   if (insufficient || score == null) {
     return (
       <div className="flex items-center gap-4">
-        <div
-          className="flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full border-2 border-dashed border-border/80 bg-surface/50"
-          aria-hidden
-        >
-          <span className="font-mono text-lg text-muted/80">—</span>
-        </div>
+        <ArcGauge pct={0} strokeClass="text-neon-cyan/30">
+          <span className="font-mono text-xl text-muted/70">—</span>
+        </ArcGauge>
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Baseline required</p>
-          <p className="mt-0.5 text-xs leading-snug text-accent/90">Provisional or validated readiness needs evidence.</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-neon-cyan/90">Baseline required</p>
+          <p className="mt-0.5 text-xs leading-snug text-muted">Run Light Diagnostic for a provisional baseline.</p>
           <div className="mt-2">
             <ChartCompactEmpty
               label=""
@@ -41,32 +77,14 @@ export function ReadinessGauge({
     );
   }
 
-  const r = 30;
-  const c = 2 * Math.PI * r;
   const pct = Math.min(100, Math.max(0, score)) / 100;
-  const dash = c * pct;
-  const ringClass = basis === "provisional" ? "text-amber-400/90" : "text-signal";
+  const strokeClass = basis === "provisional" ? "text-neon-amber" : "text-neon-cyan";
 
   return (
     <div className="flex items-center gap-4">
-      <svg width="72" height="72" viewBox="0 0 72 72" role="img" aria-label={`Overall readiness ${score}`} className="shrink-0">
-        <circle cx="36" cy="36" r={r} fill="none" stroke="currentColor" className="text-border" strokeWidth="6" />
-        <circle
-          cx="36"
-          cy="36"
-          r={r}
-          fill="none"
-          stroke="currentColor"
-          className={ringClass}
-          strokeWidth="6"
-          strokeLinecap="round"
-          strokeDasharray={`${dash} ${c - dash}`}
-          transform="rotate(-90 36 36)"
-        />
-        <text x="36" y="39" textAnchor="middle" className="fill-accent text-[15px] font-semibold">
-          {score}
-        </text>
-      </svg>
+      <ArcGauge pct={pct} strokeClass={strokeClass}>
+        <span className="text-lg font-semibold tabular-nums text-accent">{score}</span>
+      </ArcGauge>
       <div className="min-w-0 flex-1">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
           {basis === "provisional" ? "Provisional" : "Validated"}
@@ -75,7 +93,7 @@ export function ReadinessGauge({
         {qualitySubtitle && (
           <p className="mt-0.5 line-clamp-2 font-mono text-[10px] leading-snug text-muted">{qualitySubtitle}</p>
         )}
-        <Link to="/readiness" className="mt-1.5 inline-block text-[11px] font-medium text-signal hover:underline">
+        <Link to="/readiness" className="cockpit-link mt-1.5 inline-block text-[11px]">
           Drill-down →
         </Link>
       </div>

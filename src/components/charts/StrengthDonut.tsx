@@ -2,8 +2,8 @@ import type { EvidenceStrengthTotals } from "../../domain/analytics";
 import { ChartCompactEmpty } from "./ChartCompactEmpty";
 
 const COLORS = {
-  strong: "text-emerald-400",
-  medium: "text-amber-400/90",
+  strong: "text-signal drop-shadow-[0_0_8px_rgba(61,255,154,0.5)]",
+  medium: "text-neon-amber drop-shadow-[0_0_8px_rgba(255,184,77,0.4)]",
   weak: "text-muted",
 };
 

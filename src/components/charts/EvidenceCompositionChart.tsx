@@ -24,7 +24,7 @@ export function EvidenceCompositionChart({ validated, provisional, basis }: Evid
       <StrengthDonut totals={totals} />
       <div className="text-[10px] text-muted">
         {showProvisionalNote && <p className="text-amber-400/90">Includes provisional QCM</p>}
-        <Link to="/readiness" className="mt-1 block text-accent hover:underline">
+        <Link to="/readiness" className="cockpit-link mt-1 block text-[11px]">
           Evidence drill-down →
         </Link>
       </div>

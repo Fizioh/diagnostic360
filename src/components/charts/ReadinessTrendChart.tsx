@@ -36,18 +36,26 @@ export function ReadinessTrendChart({ points, hasTrend }: ReadinessTrendChartPro
   });
 
   return (
-    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" role="img" aria-label="Readiness trend" className="rounded-md bg-surface/35">
+    <svg
+      width="100%"
+      height={h}
+      viewBox={`0 0 ${w} ${h}`}
+      preserveAspectRatio="none"
+      role="img"
+      aria-label="Readiness trend"
+      className="rounded-lg border border-neon-blue/10 bg-neon-blue/5"
+    >
       <polyline
         fill="none"
         stroke="currentColor"
-        className="text-signal"
+        className="text-neon-cyan drop-shadow-[0_0_6px_rgba(46,230,255,0.6)]"
         strokeWidth="2"
         points={coords.join(" ")}
       />
       {valid.map((p, i) => {
         const x = pad + (i / (valid.length - 1)) * (w - pad * 2);
         const y = h - pad - ((p.score - minY) / span) * (h - pad * 2);
-        return <circle key={p.at} cx={x} cy={y} r="3" className="fill-signal" />;
+        return <circle key={p.at} cx={x} cy={y} r="3" className="fill-neon-cyan" />;
       })}
     </svg>
   );

@@ -16,7 +16,7 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-surface text-accent">
-      <header className="border-b border-border px-4 py-3 md:px-6">
+      <header className="border-b border-neon-blue/15 bg-panel/40 px-4 py-3 backdrop-blur-md md:px-6">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[10px] font-medium tracking-[0.2em] text-muted uppercase">Mission 2027</p>
@@ -30,7 +30,7 @@ export function AppLayout() {
                 to={item.to}
                 end={item.to === "/"}
                 className={({ isActive }) =>
-                  `rounded-md px-2.5 py-1.5 ${isActive ? "bg-accent/10 text-accent" : "text-muted hover:text-accent"}`
+                  `rounded-md px-2.5 py-1.5 transition ${isActive ? "border border-neon-cyan/30 bg-neon-cyan/10 text-neon-cyan shadow-neon-sm" : "text-muted hover:text-accent"}`
                 }
               >
                 {item.label}

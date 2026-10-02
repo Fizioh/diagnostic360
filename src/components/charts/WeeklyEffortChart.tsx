@@ -37,7 +37,7 @@ export function WeeklyEffortChart({ days, hasReliableDuration, totalDiagnosticSe
           return (
             <div key={d.date} className="flex flex-1 flex-col items-center gap-0.5">
               <div
-                className={`w-full max-w-[14px] rounded-sm ${v > 0 ? "bg-accent/65" : "bg-border/50"}`}
+                className={`w-full max-w-[14px] rounded-sm ${v > 0 ? "bg-gradient-to-t from-neon-blue to-neon-cyan shadow-[0_0_10px_rgba(46,230,255,0.35)]" : "bg-border/60"}`}
                 style={{ height: h }}
               />
               <span className="text-[8px] text-muted">{labels[i] ?? ""}</span>

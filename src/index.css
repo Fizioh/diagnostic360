@@ -13,3 +13,56 @@ body,
 body {
   @apply bg-surface font-sans text-accent antialiased;
 }
+
+@layer components {
+  .cockpit-scene {
+    @apply relative isolate min-h-0;
+  }
+
+  .cockpit-scene::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-image: theme("backgroundImage.cockpit-mesh");
+  }
+
+  .cockpit-scene::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: theme("backgroundImage.cockpit-grid");
+    background-size: theme("backgroundSize.grid");
+    mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 20%, transparent 75%);
+    pointer-events: none;
+  }
+
+  .cockpit-glass {
+    @apply border border-neon-blue/15 bg-panel/75 shadow-neon-sm backdrop-blur-md;
+  }
+
+  .cockpit-glass-focus {
+    @apply border-neon-cyan/35 bg-panel/80 shadow-neon-focus backdrop-blur-lg;
+  }
+
+  .cockpit-glass-kpi {
+    @apply border border-neon-blue/10 bg-panel/65 backdrop-blur-sm;
+  }
+
+  .cockpit-btn-primary {
+    @apply rounded-lg bg-gradient-to-r from-neon-blue to-neon-cyan px-4 py-2 text-xs font-semibold text-surface shadow-[0_0_24px_rgba(46,230,255,0.35)] transition hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neon-cyan;
+  }
+
+  .cockpit-link {
+    @apply font-medium text-neon-cyan transition hover:text-neon-cyan/80 hover:underline;
+  }
+
+  .cockpit-target-pill {
+    @apply inline-flex items-center gap-2 rounded-full border border-neon-blue/25 bg-neon-blue/10 px-3 py-1 text-xs text-accent shadow-neon-sm;
+  }
+
+  .cockpit-orb {
+    @apply pointer-events-none absolute rounded-full blur-3xl;
+  }
+}

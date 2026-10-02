@@ -5,7 +5,6 @@ compatibility_date = "2024-11-01"
 [vars]
 ALLOWED_ORIGINS = "https://fizioh.github.io,http://localhost:5173"
 
-# Optional but recommended for global login rate limits (wrangler kv namespace create RATE_LIMIT_KV)
-# [[kv_namespaces]]
-# binding = "RATE_LIMIT_KV"
-# id = "<your-kv-namespace-id>"
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "70b677f38f4d4129ade48770a4656949"

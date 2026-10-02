@@ -151,7 +151,7 @@ function outcomeToStrength(outcome: ReviewModuleOutcome): EvidenceItem["strength
   return null;
 }
 
-function weaknessLines(mod: DiagnosticExternalReviewV1["modules"][number]): ReviewWeaknessEntry[] {
+export function weaknessLines(mod: DiagnosticExternalReviewV1["modules"][number]): ReviewWeaknessEntry[] {
   if (mod.weaknessEntries?.length) return mod.weaknessEntries;
   if (mod.weaknesses?.length) {
     return mod.weaknesses.map((summary) => ({ summary }));

@@ -3,6 +3,7 @@ import {
   applyExternalReview,
   type DiagnosticExternalReviewV1,
   parseExternalReviewJson,
+  weaknessLines,
 } from "../diagnostic/externalReview";
 import { computeAllDomains } from "../readiness/computeReadiness";
 import {
@@ -68,8 +69,9 @@ function countWouldAdd(review: DiagnosticExternalReviewV1): { evidence: number; 
   let weaknesses = 0;
   for (const mod of review.modules) {
     if (mod.outcome === "validated-pass" || mod.outcome === "validated-partial") evidence += 1;
-    if (mod.outcome === "validated-fail") weaknesses += 1;
-    weaknesses += mod.weaknessEntries?.length ?? mod.weaknesses?.length ?? 0;
+    for (const entry of weaknessLines(mod)) {
+      if (entry.summary?.trim()) weaknesses += 1;
+    }
   }
   return { evidence, weaknesses };
 }
@@ -77,6 +79,7 @@ function countWouldAdd(review: DiagnosticExternalReviewV1): { evidence: number; 
 export function previewReviewImport(
   workspace: MissionWorkspaceV1,
   raw: string,
+  options?: { expectedRunId?: string },
 ): ReviewImportPreview {
   const errors: string[] = [];
   let review: DiagnosticExternalReviewV1;
@@ -94,15 +97,19 @@ export function previewReviewImport(
       errors: [e instanceof Error ? e.message : "Invalid review"],
     };
   }
+  if (options?.expectedRunId && review.runId !== options.expectedRunId) {
+    errors.push(`runId mismatch: review targets ${review.runId}, expected ${options.expectedRunId}`);
+  }
   const reviewId = normalizeReviewId(review);
+  const alreadyApplied = isReviewAlreadyApplied(workspace, reviewId);
   const counts = countWouldAdd(review);
   return {
     reviewId,
     runId: review.runId,
     reviewedAt: review.reviewedAt,
-    alreadyApplied: isReviewAlreadyApplied(workspace, reviewId),
-    evidenceToAdd: counts.evidence,
-    weaknessesToAdd: counts.weaknesses,
+    alreadyApplied,
+    evidenceToAdd: alreadyApplied ? 0 : counts.evidence,
+    weaknessesToAdd: alreadyApplied ? 0 : counts.weaknesses,
     moduleOutcomes: review.modules.map((m) => ({ moduleId: m.moduleId, outcome: m.outcome })),
     errors,
   };
@@ -198,14 +205,12 @@ export function importExternalReviewJson(
     diagnosticSeconds?: number | null;
   },
 ): { workspace: MissionWorkspaceV1; applied: boolean; message: string; preview: ReviewImportPreview } {
-  const preview = previewReviewImport(workspace, raw);
-  if (preview.errors.length) {
-    throw new Error(preview.errors.join("; "));
+  const previewBefore = previewReviewImport(workspace, raw, { expectedRunId: options?.expectedRunId });
+  if (previewBefore.errors.length) {
+    throw new Error(previewBefore.errors.join("; "));
   }
   const review = parseExternalReviewJson(raw);
-  if (options?.expectedRunId && review.runId !== options.expectedRunId) {
-    throw new Error(`runId mismatch: review targets ${review.runId}, expected ${options.expectedRunId}`);
-  }
   const result = importExternalReviewToWorkspace(workspace, review, options);
+  const preview = previewReviewImport(result.workspace, raw, { expectedRunId: options?.expectedRunId });
   return { ...result, preview };
 }

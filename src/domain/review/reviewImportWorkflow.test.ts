@@ -111,4 +111,31 @@ describe("review import workflow", () => {
       importExternalReviewJson(emptyWorkspace(), JSON.stringify(review), { expectedRunId: "run-b" }),
     ).toThrow(/runId mismatch/);
   });
+
+  it("preview flags runId mismatch before apply", () => {
+    const review = buildReviewTemplate("run-a");
+    const preview = previewReviewImport(emptyWorkspace(), JSON.stringify(review), { expectedRunId: "run-b" });
+    expect(preview.errors.some((e) => e.includes("runId mismatch"))).toBe(true);
+  });
+
+  it("preview after successful import shows alreadyApplied", () => {
+    const runId = "run-preview-after";
+    const review = buildReviewTemplate(runId);
+    review.reviewId = "rev-preview-after";
+    review.modules[0].outcome = "validated-pass";
+    const raw = JSON.stringify(review);
+    const first = importExternalReviewJson(emptyWorkspace(), raw);
+    expect(first.applied).toBe(true);
+    expect(first.preview.alreadyApplied).toBe(true);
+    expect(first.preview.evidenceToAdd).toBe(0);
+  });
+
+  it("preview weakness count matches weaknessLines for validated-fail", () => {
+    const review = buildReviewTemplate("run-count");
+    const mod = review.modules.find((m) => m.moduleId === "django-sql")!;
+    mod.outcome = "validated-fail";
+    mod.weaknessEntries = [{ summary: "One gap" }];
+    const preview = previewReviewImport(emptyWorkspace(), JSON.stringify(review));
+    expect(preview.weaknessesToAdd).toBe(1);
+  });
 });

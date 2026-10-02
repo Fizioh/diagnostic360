@@ -17,6 +17,8 @@ export type ReadinessDomain =
 
 export type EvidenceStrength = "strong" | "medium" | "weak";
 
+export type ConfidenceCalibration = "overconfident" | "underconfident" | "aligned" | null;
+
 export type TaskStatus =
   | "backlog"
   | "this-week"
@@ -80,6 +82,7 @@ export interface ReadinessDomainView {
   label: string;
   score: number | null;
   confidence: number | null;
+  calibration: ConfidenceCalibration;
   evidenceCount: number;
   trend: "up" | "down" | "flat" | "unknown";
   insufficientEvidence: boolean;

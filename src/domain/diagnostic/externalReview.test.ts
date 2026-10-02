@@ -39,4 +39,13 @@ describe("externalReview", () => {
     expect(next.weaknesses).toHaveLength(1);
     expect(next.errorLog[0].weaknessId).toBe(next.weaknesses[0].id);
   });
+
+  it("stores self-confidence on diagnostic evidence for calibration only", () => {
+    const review = buildReviewTemplate("run-1");
+    review.modules[0].outcome = "validated-pass";
+    const next = applyExternalReview(emptyWorkspace(), review, {
+      moduleSelfConfidence: { coding: 5 },
+    });
+    expect(next.evidence[0].confidence).toBe(100);
+  });
 });

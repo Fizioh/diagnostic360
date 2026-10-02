@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { evidenceContribution } from "../../domain/evidence/evidenceModel";
 import {
   computeAllDomains,
   evidenceForDomain,
@@ -49,6 +50,7 @@ export function ReadinessPage() {
                   <th className="p-3">Domain</th>
                   <th className="p-3">Score</th>
                   <th className="p-3">Evidence</th>
+                  <th className="p-3">Calibration</th>
                   <th className="p-3">Trend</th>
                 </tr>
               </thead>
@@ -68,6 +70,7 @@ export function ReadinessPage() {
                       )}
                     </td>
                     <td className="p-3 text-muted">{d.evidenceCount}</td>
+                    <td className="p-3 font-mono text-xs text-muted">{d.calibration ?? "—"}</td>
                     <td className="p-3 font-mono text-xs text-muted">{d.trend}</td>
                   </tr>
                 ))}
@@ -85,7 +88,10 @@ export function ReadinessPage() {
                     {evidenceForDomain(selected, evidence).map((e) => (
                       <li key={e.id} className="rounded border border-border/80 px-2 py-1">
                         <span className="font-mono text-accent">{e.title}</span>
-                        <span className="ml-2 text-[10px] text-muted">{e.strength}</span>
+                        <span className="ml-2 text-[10px] text-muted">
+                          {e.strength} · w={evidenceContribution(e).toFixed(2)}
+                          {e.confidence != null ? ` · self ${e.confidence}%` : ""}
+                        </span>
                       </li>
                     ))}
                     {evidenceForDomain(selected, evidence).length === 0 && (

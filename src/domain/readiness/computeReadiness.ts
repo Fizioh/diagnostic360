@@ -1,4 +1,12 @@
 import type { EvidenceItem, ReadinessDomain, ReadinessDomainView } from "../types";
+import {
+  computeConfidenceCalibration,
+  domainEvidenceScore,
+  evidenceContribution,
+  insufficientEvidenceForDomain,
+  READINESS_SCORE_REFERENCE,
+  validatedEvidenceForDomain,
+} from "../evidence/evidenceModel";
 
 const DOMAIN_LABELS: Record<ReadinessDomain, string> = {
   algorithms: "Algorithms",
@@ -18,43 +26,43 @@ const DOMAIN_LABELS: Record<ReadinessDomain, string> = {
   "public-engineering-proof": "Public Engineering Proof",
 };
 
-const WEIGHT: Record<EvidenceItem["strength"], number> = {
-  strong: 3,
-  medium: 1.5,
-  weak: 0.25,
-};
-
 export const ALL_DOMAINS = Object.keys(DOMAIN_LABELS) as ReadinessDomain[];
 
 export function computeDomainReadiness(
   domain: ReadinessDomain,
   evidence: EvidenceItem[],
+  asOf: Date = new Date(),
 ): ReadinessDomainView {
-  const items = evidence.filter((e) => e.domain === domain && e.validatedAt);
+  const items = validatedEvidenceForDomain(domain, evidence);
   if (items.length === 0) {
     return {
       domain,
       label: DOMAIN_LABELS[domain],
       score: null,
       confidence: null,
+      calibration: null,
       evidenceCount: 0,
       trend: "unknown",
       insufficientEvidence: true,
     };
   }
   const sorted = [...items].sort((a, b) => (a.validatedAt ?? "").localeCompare(b.validatedAt ?? ""));
-  const weighted = sorted.reduce((s, e) => s + WEIGHT[e.strength], 0);
-  const score = Math.min(100, Math.round((weighted / 6) * 100));
+  const score = domainEvidenceScore(domain, evidence, asOf);
   let trend: ReadinessDomainView["trend"] = "flat";
   if (sorted.length >= 2) {
-    const prevWeighted = sorted
-      .slice(0, -1)
-      .reduce((s, e) => s + WEIGHT[e.strength], 0);
-    const prevScore = Math.min(100, Math.round((prevWeighted / 6) * 100));
-    if (score > prevScore) trend = "up";
-    else if (score < prevScore) trend = "down";
+    const prevItems = sorted.slice(0, -1);
+    const prevWeighted = prevItems.reduce((s, e) => s + evidenceContribution(e, asOf), 0);
+    const prevScore = Math.min(
+      100,
+      Math.round((prevWeighted / READINESS_SCORE_REFERENCE) * 100),
+    );
+    if ((score ?? 0) > prevScore) trend = "up";
+    else if ((score ?? 0) < prevScore) trend = "down";
   }
-  const confidences = items.map((e) => e.confidence).filter((c): c is number => c != null);
+  const confidences = items
+    .filter((e) => e.sourceType === "diagnostic")
+    .map((e) => e.confidence)
+    .filter((c): c is number => c != null);
   const confidence =
     confidences.length > 0
       ? Math.round(confidences.reduce((a, b) => a + b, 0) / confidences.length)
@@ -64,14 +72,15 @@ export function computeDomainReadiness(
     label: DOMAIN_LABELS[domain],
     score,
     confidence,
+    calibration: computeConfidenceCalibration(domain, evidence),
     evidenceCount: items.length,
     trend,
-    insufficientEvidence: items.every((e) => e.strength === "weak") && items.length < 2,
+    insufficientEvidence: insufficientEvidenceForDomain(domain, evidence),
   };
 }
 
 export function evidenceForDomain(domain: ReadinessDomain, evidence: EvidenceItem[]): EvidenceItem[] {
-  return evidence.filter((e) => e.domain === domain && e.validatedAt);
+  return validatedEvidenceForDomain(domain, evidence);
 }
 
 export function weaknessesForDomain(

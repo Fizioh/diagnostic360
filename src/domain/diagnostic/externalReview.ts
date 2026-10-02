@@ -1,5 +1,6 @@
 import type { EvidenceItem, MissionWorkspaceV1, ReadinessDomain } from "../types";
-import type { ModuleId } from "../../types/diagnostic";
+import type { Confidence, ModuleId } from "../../types/diagnostic";
+import { selfConfidenceToPercent } from "../evidence/evidenceModel";
 import { openWeaknessWithRetest } from "../weakness/retestLoop";
 
 export type ReviewModuleOutcome =
@@ -110,6 +111,7 @@ function weaknessLines(mod: DiagnosticExternalReviewV1["modules"][number]): Revi
 export function applyExternalReview(
   workspace: MissionWorkspaceV1,
   review: DiagnosticExternalReviewV1,
+  options?: { moduleSelfConfidence?: Partial<Record<ModuleId, Confidence>> },
 ): MissionWorkspaceV1 {
   const at = new Date().toISOString();
   let next = {
@@ -123,6 +125,7 @@ export function applyExternalReview(
     if (!domain) continue;
     const strength = outcomeToStrength(mod.outcome);
     if (strength) {
+      const self = options?.moduleSelfConfidence?.[mod.moduleId];
       next.evidence.push({
         id: crypto.randomUUID(),
         domain,
@@ -131,6 +134,7 @@ export function applyExternalReview(
         description: mod.summary ?? review.overallNotes ?? "",
         validatedAt: review.reviewedAt,
         sourceType: "diagnostic",
+        confidence: self != null ? selfConfidenceToPercent(self) : undefined,
       });
     }
     const entries = weaknessLines(mod);

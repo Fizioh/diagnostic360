@@ -58,7 +58,7 @@ export function FinalDashboard({ run, onBack }: FinalDashboardProps) {
         setImportMessage("runId does not match this diagnostic session");
         return;
       }
-      await persist(applyExternalReview(workspace, review));
+      await persist(applyExternalReview(workspace, review, { moduleSelfConfidence: run.confidence }));
       setImportMessage("Review imported — evidence and weaknesses updated in workspace.");
     } catch (e) {
       setImportMessage(e instanceof Error ? e.message : "Import failed");

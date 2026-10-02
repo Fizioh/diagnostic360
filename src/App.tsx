@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "./app/layout/AppLayout";
+import { AnalyticsPage } from "./features/analytics/AnalyticsPage";
 import { DataBackupPage } from "./features/data/DataBackupPage";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { DiagnosticFeature } from "./features/diagnostic/DiagnosticFeature";
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="today" element={<TodayPage />} />
           <Route path="readiness" element={<ReadinessPage />} />
           <Route path="remediation" element={<RemediationPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="data" element={<DataBackupPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

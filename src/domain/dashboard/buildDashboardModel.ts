@@ -302,6 +302,6 @@ export function buildDashboardModel(input: {
     evidenceFeed: evidenceFeed(evidence),
     engineeringProofs: (input.snapshot?.engineeringProofs ?? []).slice(0, 8),
     pipelineStages: pipelineStages(input.snapshot),
-    hasTrendHistory: false,
+    hasTrendHistory: (input.workspace?.readinessSnapshots?.length ?? 0) >= 2,
   };
 }

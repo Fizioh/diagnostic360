@@ -12,13 +12,20 @@ export function emptyWorkspace(): MissionWorkspaceV1 {
     weaknesses: [],
     retests: [],
     errorLog: [],
+    appliedReviews: [],
+    readinessSnapshots: [],
   };
 }
 
 export async function loadWorkspace(): Promise<MissionWorkspaceV1> {
   const raw = await get<MissionWorkspaceV1>(KEY);
   if (!raw || raw.schemaVersion !== 1) return emptyWorkspace();
-  return { ...raw, errorLog: raw.errorLog ?? [] };
+  return {
+    ...raw,
+    errorLog: raw.errorLog ?? [],
+    appliedReviews: raw.appliedReviews ?? [],
+    readinessSnapshots: raw.readinessSnapshots ?? [],
+  };
 }
 
 export async function saveWorkspace(workspace: MissionWorkspaceV1): Promise<void> {

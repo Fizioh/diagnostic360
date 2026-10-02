@@ -44,6 +44,27 @@ export interface EvidenceItem {
   validatedAt?: string;
   confidence?: number;
   sourceType: "diagnostic" | "retest" | "mock-interview" | "oss" | "document" | "task";
+  sourceRunId?: string;
+  sourceReviewId?: string;
+}
+
+export interface AppliedReviewRecord {
+  reviewId: string;
+  runId: string;
+  reviewedAt: string;
+  importedAt: string;
+}
+
+export interface ReadinessSnapshotV1 {
+  id: string;
+  at: string;
+  sourceReviewId: string;
+  runId: string;
+  profileScore: number | null;
+  domainScores: Partial<Record<ReadinessDomain, number>>;
+  evidenceCount: number;
+  openWeaknesses: number;
+  diagnosticSeconds: number | null;
 }
 
 export interface WeaknessItem {
@@ -96,6 +117,8 @@ export interface MissionWorkspaceV1 {
   weaknesses: WeaknessItem[];
   retests: RetestItem[];
   errorLog: ErrorLogEntry[];
+  appliedReviews?: AppliedReviewRecord[];
+  readinessSnapshots?: ReadinessSnapshotV1[];
 }
 
 export type DomainEvent =

@@ -4,20 +4,22 @@ import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { SignJWT, jwtVerify } from "jose";
 import { verifyPassphrase } from "./crypto";
 import { getPlanningSnapshot } from "./planningSnapshot";
-import { RateLimiter } from "./rateLimit";
+import { isLoginBlocked, recordLoginFailure, resetLoginFailures } from "./rateLimit";
 
 type Env = {
   SESSION_SECRET: string;
   PASSPHRASE_SALT: string;
   PASSPHRASE_HASH: string;
   ALLOWED_ORIGINS: string;
+  RATE_LIMIT_KV?: KVNamespace;
 };
 
 type SessionPayload = { sub: "mission2027-user" };
 
 const SESSION_COOKIE = "m2027_session";
 const SESSION_TTL_SEC = 60 * 60 * 4;
-const limiter = new RateLimiter();
+const MAX_LOGIN_BODY_BYTES = 4096;
+const MAX_PASSPHRASE_LENGTH = 256;
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -41,7 +43,7 @@ async function signSession(secret: string): Promise<string> {
 async function verifySessionToken(token: string, secret: string): Promise<boolean> {
   try {
     const key = new TextEncoder().encode(secret);
-    await jwtVerify(token, key);
+    await jwtVerify(token, key, { algorithms: ["HS256"] });
     return true;
   } catch {
     return false;
@@ -72,20 +74,37 @@ app.get("/auth/session", async (c) => {
 
 app.post("/auth/login", async (c) => {
   const ip = clientIp(c);
-  if (limiter.isBlocked(ip)) {
+  const kv = c.env.RATE_LIMIT_KV;
+  if (await isLoginBlocked(kv, ip)) {
     return c.json({ error: "Too many attempts. Try again later." }, 429);
+  }
+  const contentLength = c.req.header("content-length");
+  if (contentLength && Number(contentLength) > MAX_LOGIN_BODY_BYTES) {
+    return c.json({ error: "Payload too large" }, 413);
   }
   if (!c.env.SESSION_SECRET || !c.env.PASSPHRASE_SALT || !c.env.PASSPHRASE_HASH) {
     return c.json({ error: "Auth not configured" }, 503);
   }
-  const body = await c.req.json<{ passphrase?: string }>().catch(() => ({}));
+  const rawBody = await c.req.text();
+  if (rawBody.length > MAX_LOGIN_BODY_BYTES) {
+    return c.json({ error: "Payload too large" }, 413);
+  }
+  let body: { passphrase?: string };
+  try {
+    body = JSON.parse(rawBody) as { passphrase?: string };
+  } catch {
+    return c.json({ error: "Invalid JSON" }, 400);
+  }
   const passphrase = body.passphrase ?? "";
-  const valid = await verifyPassphrase(passphrase, c.env.PASSPHRASE_SALT, c.env.PASSPHRASE_HASH);
-  if (!valid) {
-    limiter.recordFailure(ip);
+  if (passphrase.length > MAX_PASSPHRASE_LENGTH) {
     return c.json({ error: "Invalid access key" }, 401);
   }
-  limiter.reset(ip);
+  const valid = await verifyPassphrase(passphrase, c.env.PASSPHRASE_SALT, c.env.PASSPHRASE_HASH);
+  if (!valid) {
+    await recordLoginFailure(kv, ip);
+    return c.json({ error: "Invalid access key" }, 401);
+  }
+  await resetLoginFailures(kv, ip);
   const token = await signSession(c.env.SESSION_SECRET);
   setCookie(c, SESSION_COOKIE, token, {
     httpOnly: true,

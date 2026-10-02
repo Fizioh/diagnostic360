@@ -9,6 +9,7 @@ export class ApiNotionAdapter implements NotionAdapter {
     if (imported) return imported;
 
     const res = await missionApiFetch("/api/planning");
+    if (res.status === 401) throw new Error("Planning fetch failed (401)");
     if (!res.ok) throw new Error(`Planning fetch failed (${res.status})`);
     const data = (await res.json()) as NotionPlanningSnapshot;
     return { ...data, source: "authenticated-api" };

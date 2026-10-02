@@ -31,6 +31,10 @@ npx wrangler secret put PASSPHRASE_HASH
 npm run deploy
 ```
 
+Optional global login rate limits: `wrangler kv namespace create RATE_LIMIT_KV`, then bind `RATE_LIMIT_KV` in `wrangler.toml`. Without KV, the Worker uses the Cache API (better than in-memory; KV preferred in production).
+
+Login hardening: request body capped at 4 KiB, passphrase max 256 characters, JWT verification restricted to HS256.
+
 Set GitHub repository variable `MISSION_API_URL` to the Worker URL for Pages builds.
 
 ## Audit note (2026-10-02)

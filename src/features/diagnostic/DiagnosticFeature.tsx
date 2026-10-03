@@ -14,6 +14,9 @@ export function DiagnosticFeature() {
     revealHint,
     completeModule,
     resetAll,
+    logAssessmentEvent,
+    storeExecutionResult,
+    acknowledgeSave,
   } = useDiagnostic();
 
   const [inSession, setInSession] = useState(false);
@@ -70,6 +73,9 @@ export function DiagnosticFeature() {
       onSelectModule={setModule}
       onPause={pause}
       onResume={resume}
+      onLogEvent={logAssessmentEvent}
+      onStoreExecution={storeExecutionResult}
+      onAcknowledgeSave={acknowledgeSave}
     />
   );
 }

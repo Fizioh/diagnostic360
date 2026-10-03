@@ -1,3 +1,4 @@
+import { normalizeRunAssessmentFields } from "../domain/diagnostic/assessmentEvents";
 import { MODULE_ORDER, type DiagnosticRun, type ModuleId } from "../types/diagnostic";
 
 const STORAGE_KEY = "sm2027-diagnostic-run";
@@ -19,6 +20,9 @@ export function createRun(): DiagnosticRun {
     moduleStartedAt: { [MODULE_ORDER[0]]: now },
     totalElapsedSeconds: 0,
     lastActiveAt: now,
+    assessmentEvents: [],
+    editorAssistance: { aiAutocomplete: false, aiChat: false, languageTooling: true },
+    lastExecutionByModule: {},
   };
 }
 
@@ -26,7 +30,7 @@ export function loadRun(): DiagnosticRun | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as DiagnosticRun;
+    return normalizeRunAssessmentFields(JSON.parse(raw) as DiagnosticRun);
   } catch {
     return null;
   }

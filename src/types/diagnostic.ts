@@ -26,6 +26,42 @@ export interface ModuleAnswers {
   [field: string]: string | string[] | number | boolean | Record<string, unknown>;
 }
 
+export type AssessmentEventType =
+  | "assessment_started"
+  | "module_started"
+  | "code_changed"
+  | "run_requested"
+  | "test_result"
+  | "hint_requested"
+  | "signal_revealed"
+  | "answer_submitted"
+  | "starter_reset"
+  | "save_acknowledged";
+
+export interface AssessmentEvent {
+  id: string;
+  at: string;
+  moduleId: ModuleId;
+  type: AssessmentEventType;
+  payload?: Record<string, unknown>;
+}
+
+export interface EditorAssistanceSnapshot {
+  aiAutocomplete: boolean;
+  aiChat: boolean;
+  languageTooling: boolean;
+}
+
+export interface StoredExecutionResult {
+  ok: boolean;
+  stdout: string;
+  stderr: string;
+  tests: { id: string; name: string; passed: boolean; message?: string }[];
+  unsupportedReason?: string;
+  durationMs: number;
+  at: string;
+}
+
 export interface DiagnosticRun {
   version: "1.0";
   id: string;
@@ -42,6 +78,9 @@ export interface DiagnosticRun {
   completedAt?: string;
   totalElapsedSeconds: number;
   lastActiveAt: string;
+  assessmentEvents?: AssessmentEvent[];
+  editorAssistance?: EditorAssistanceSnapshot;
+  lastExecutionByModule?: Partial<Record<ModuleId, StoredExecutionResult>>;
 }
 
 export const MODULE_ORDER: ModuleId[] = [

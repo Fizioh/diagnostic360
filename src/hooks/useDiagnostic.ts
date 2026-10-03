@@ -6,7 +6,15 @@ import {
   nextModuleId,
   saveRun,
 } from "../lib/storage";
-import type { Confidence, DiagnosticRun, ModuleAnswers, ModuleId } from "../types/diagnostic";
+import { appendAssessmentEvent } from "../domain/diagnostic/assessmentEvents";
+import type {
+  AssessmentEventType,
+  Confidence,
+  DiagnosticRun,
+  ModuleAnswers,
+  ModuleId,
+  StoredExecutionResult,
+} from "../types/diagnostic";
 import { MODULE_ORDER } from "../types/diagnostic";
 
 export function useDiagnostic() {
@@ -39,7 +47,9 @@ export function useDiagnostic() {
   }, []);
 
   const startNew = useCallback(() => {
-    const fresh = createRun();
+    let fresh = createRun();
+    fresh = appendAssessmentEvent(fresh, fresh.currentModuleId, "assessment_started");
+    fresh = appendAssessmentEvent(fresh, fresh.currentModuleId, "module_started");
     persist(fresh);
   }, [persist]);
 
@@ -63,14 +73,18 @@ export function useDiagnostic() {
   const setModule = useCallback(
     (moduleId: ModuleId) => {
       if (!run) return;
-      persist({
+      let next: DiagnosticRun = {
         ...run,
         currentModuleId: moduleId,
         moduleStartedAt: {
           ...run.moduleStartedAt,
           [moduleId]: run.moduleStartedAt[moduleId] ?? new Date().toISOString(),
         },
-      });
+      };
+      if (!run.moduleStartedAt[moduleId]) {
+        next = appendAssessmentEvent(next, moduleId, "module_started");
+      }
+      persist(next);
     },
     [run, persist],
   );
@@ -92,7 +106,39 @@ export function useDiagnostic() {
   const revealHint = useCallback(
     (hintId: string) => {
       if (!run || run.hintsRevealed.includes(hintId)) return;
-      persist({ ...run, hintsRevealed: [...run.hintsRevealed, hintId] });
+      let next: DiagnosticRun = { ...run, hintsRevealed: [...run.hintsRevealed, hintId] };
+      next = appendAssessmentEvent(next, run.currentModuleId, "hint_requested", { hintId });
+      persist(next);
+    },
+    [run, persist],
+  );
+
+  const logAssessmentEvent = useCallback(
+    (moduleId: ModuleId, type: AssessmentEventType, payload?: Record<string, unknown>) => {
+      if (!run) return;
+      persist(appendAssessmentEvent(run, moduleId, type, payload));
+    },
+    [run, persist],
+  );
+
+  const storeExecutionResult = useCallback(
+    (moduleId: ModuleId, result: StoredExecutionResult) => {
+      if (!run) return;
+      persist({
+        ...run,
+        lastExecutionByModule: {
+          ...run.lastExecutionByModule,
+          [moduleId]: result,
+        },
+      });
+    },
+    [run, persist],
+  );
+
+  const acknowledgeSave = useCallback(
+    (moduleId: ModuleId) => {
+      if (!run) return;
+      persist(appendAssessmentEvent(run, moduleId, "save_acknowledged"));
     },
     [run, persist],
   );
@@ -105,14 +151,19 @@ export function useDiagnostic() {
         : [...run.completedModuleIds, moduleId];
       const nxt = nextModuleId(moduleId);
       const allDone = completed.length === MODULE_ORDER.length;
-      persist({
+      let next: DiagnosticRun = {
         ...run,
         completedModuleIds: completed,
         confidence: { ...run.confidence, [moduleId]: confidence },
         currentModuleId: nxt ?? moduleId,
         status: allDone ? "complete" : run.status,
         completedAt: allDone ? new Date().toISOString() : run.completedAt,
+      };
+      next = appendAssessmentEvent(next, moduleId, "answer_submitted", {
+        confidence,
+        elapsedSeconds: run.timings[moduleId] ?? 0,
       });
+      persist(next);
     },
     [run, persist],
   );
@@ -132,5 +183,8 @@ export function useDiagnostic() {
     revealHint,
     completeModule,
     resetAll,
+    logAssessmentEvent,
+    storeExecutionResult,
+    acknowledgeSave,
   };
 }
